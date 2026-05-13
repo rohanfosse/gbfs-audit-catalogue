@@ -847,23 +847,27 @@ with tab2:
         "Station type",
         sorted(gs.station_type.dropna().unique()),
         default=["docked_bike"],
+        key="anomaly_station_type",
     )
     conf = c2.multiselect(
         "Audit confidence",
         ["high", "medium", "low"],
         default=["high", "medium", "low"],
+        key="anomaly_audit_confidence",
     )
-    op_options = sorted(gs.operator_name.dropna().unique())
+    op_options_anom = sorted(gs.operator_name.dropna().unique())
     operator = c3.multiselect(
         "Operator (optional)",
-        op_options,
+        op_options_anom,
         default=[],
+        key="anomaly_operator",
     )
 
     flag_filters = st.multiselect(
         "Require at least one of these anomaly flags",
         [f"flag_A{i}" for i in range(1, 8)],
         default=[],
+        key="anomaly_flags",
     )
 
     mask = gs.station_type.isin(types) & gs.audit_confidence.isin(conf)
@@ -895,6 +899,7 @@ with tab2:
         data=csv,
         file_name="gbfs_audit_subset.csv",
         mime="text/csv",
+        key="anomaly_download",
     )
 
 
@@ -1276,11 +1281,13 @@ with tab5:
         "Free-text search (matches station_name, city, operator_name)",
         value="",
         placeholder="e.g. 'paris', 'pony bordeaux', 'gare', 'velib'",
+        key="explorer_query",
     ).strip().lower()
     type_filter = f1b.multiselect(
         "Station type",
         sorted(gs.station_type.dropna().unique()),
         default=sorted(gs.station_type.dropna().unique()),
+        key="explorer_station_type",
     )
 
     # --- Filters row 2 : confidence + flags + city + operator ---
@@ -1289,6 +1296,7 @@ with tab5:
         "Audit confidence",
         ["high", "medium", "low"],
         default=["high", "medium", "low"],
+        key="explorer_audit_confidence",
     )
     city_options = sorted(gs.city.dropna().unique())
     city_filter = f2b.multiselect(
@@ -1297,12 +1305,14 @@ with tab5:
         default=[],
         max_selections=20,
         help="Leave empty to search all 97 cities",
+        key="explorer_city",
     )
     op_options = sorted(gs.operator_name.dropna().unique())
     op_filter = f2c.multiselect(
         "Operator (optional)",
         op_options,
         default=[],
+        key="explorer_operator",
     )
 
     # --- Filters row 3 : flags + capacity range ---
@@ -1311,6 +1321,7 @@ with tab5:
         "Require at least one of these anomaly flags",
         [f"flag_A{i}" for i in range(1, 8)],
         default=[],
+        key="explorer_flags",
     )
     cap_audited = gs["capacity_audited"]
     cap_min = int(np.nanmin(cap_audited)) if cap_audited.notna().any() else 0
@@ -1321,6 +1332,7 @@ with tab5:
         max_value=cap_max,
         value=(cap_min, cap_max),
         help="NaN-capacity rows (non-dock types) are kept regardless of this slider",
+        key="explorer_capacity",
     )
 
     # --- Apply filters ---
@@ -1393,10 +1405,12 @@ with tab5:
             "audit_confidence",
         ] if c in sub.columns]
         sb1, sb2 = st.columns([1, 4])
-        sort_col = sb1.selectbox("Sort by", sort_options, index=0)
+        sort_col = sb1.selectbox("Sort by", sort_options, index=0,
+                                  key="explorer_sort_col")
         sort_asc = sb2.radio("Order", ["ascending", "descending"],
                               horizontal=True, index=0,
-                              label_visibility="collapsed") == "ascending"
+                              label_visibility="collapsed",
+                              key="explorer_sort_order") == "ascending"
         sub_sorted = sub.sort_values(sort_col, ascending=sort_asc)
         st.dataframe(sub_sorted[cols_show].head(500),
                      height=420, hide_index=True)
@@ -1416,12 +1430,14 @@ with tab5:
             data=csv_bytes,
             file_name=f"gbfs_audit_selection_{n_sub}.csv",
             mime="text/csv",
+            key="explorer_download_shown",
         )
         d2.download_button(
             "Download all 46 columns (CSV)",
             data=full_csv,
             file_name=f"gbfs_audit_selection_full_{n_sub}.csv",
             mime="text/csv",
+            key="explorer_download_full",
         )
 
 
