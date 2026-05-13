@@ -1,0 +1,346 @@
+country,name,auto_discovery_url
+DE,Yoio Erfurt,https://yoio.rideatom.com/gbfs/159/v3.0/gbfs
+AE,Yaldi,https://yaldi.rideatom.com/gbfs/511/v3.0/gbfs
+UA,3electra,https://zelectra.rideatom.com/gbfs/66/v3.0/gbfs
+DE,Yoio Göttingen,https://yoio.rideatom.com/gbfs/9/v3.0/gbfs
+DE,Donkey Republic Augsburg,https://stables.donkey.bike/api/public/gbfs/3.0/Augsburg/gbfs.json
+GB,Bolt Liverpool,https://mds.bolt.eu/gbfs/3/412/gbfs
+US,Bolt Technology OÜ,https://mds.bolt.eu/gbfs/3/23/gbfs
+DE,Donkey Prignitz,https://stables.donkey.bike/api/public/gbfs/3.0/Donkey-Prignitz/gbfs.json
+DE,Donkey Ergolding,https://stables.donkey.bike/api/public/gbfs/3.0/Ergolding/gbfs.json
+DE,Donkey Kelheim,https://stables.donkey.bike/api/public/gbfs/3.0/Kelheim/gbfs.json
+DE,Donkey Neutraubling,https://stables.donkey.bike/api/public/gbfs/3.0/Neutraubling/gbfs.json
+DE,Donkey Obertraubling,https://stables.donkey.bike/api/public/gbfs/3.0/Obertraubling/gbfs.json
+FR,Auch Velo'C,https://api.gbfs.v3.0.ecovelo.mobi/auchveloc/gbfs.json
+FR,Auto-en-Velay,https://backend.citiz.fr/public/provider/23/gbfs/3.0/gbfs.json
+ES,Cooltra Barcelona,https://maas.zeus.cooltra.com/gbfs/barcelona/3.0/en/gbfs.json
+DE,Donkey Republic Bayern Komplett,https://stables.donkey.bike/api/public/gbfs/3.0/bayern_komplett/gbfs.json
+GB,Beryl - Bradford,https://beryl-gbfs-production.web.app/v2_2/Bradford/gbfs.json
+GB,Beryl - Canterbury,https://beryl-gbfs-production.web.app/v2_2/Canterbury/gbfs.json
+US,Bird Dallas,https://mds.bird.co/gbfs/v2/public/dallas/gbfs.json
+NO,Bolt Bergen,https://api.entur.io/mobility/v2/gbfs/v3/boltbergen/gbfs
+NO,Bolt Drammen,https://api.entur.io/mobility/v2/gbfs/v3/boltdrammen/gbfs
+NO,Bolt Fredrikstad,https://api.entur.io/mobility/v2/gbfs/v3/boltfredrikstad/gbfs
+NO,Bolt Gjovik,https://api.entur.io/mobility/v2/gbfs/v3/boltgjovik/gbfs
+NO,Bolt Hamar,https://api.entur.io/mobility/v2/gbfs/v3/bolthamar/gbfs
+NO,Bolt Kristiansand,https://api.entur.io/mobility/v2/gbfs/v3/boltkristiansand/gbfs
+NO,Bolt Lillehammer,https://api.entur.io/mobility/v2/gbfs/v3/boltlillehammer/gbfs
+NO,Bolt Lillestrom,https://api.entur.io/mobility/v2/gbfs/v3/boltlillestrom/gbfs
+NO,Bolt Oslo,https://api.entur.io/mobility/v2/gbfs/v3/boltoslo/gbfs
+NO,Bolt Arpsborg,https://api.entur.io/mobility/v2/gbfs/v3/boltsarpsborg/gbfs
+FR,Brennus à Vélo (Sens),https://gbfs.partners.fifteen.eu/gbfs/2.2/sens/en/gbfs.json
+NL,Check Technologies,https://api.ridecheck.app/gbfs/v3/haarlem/gbfs.json
+NL,Check Technologies,https://api.ridecheck.app/gbfs/v3/tilburg/gbfs.json
+FR,Citédia Services,https://backend.citiz.fr/public/provider/22/gbfs/3.0/gbfs.json
+FR,Clem,https://gbfs.clem.mobi/gbfs.json
+DE,Conficars,https://api.mobidata-bw.de/sharing/gbfs/v3/conficars_ulm/gbfs
+NL,Donkey Republic Katwijk,https://stables.donkey.bike/api/public/gbfs/3.0/donkey_katwijk/gbfs.json
+DE,Donkey KielRegion+Smile24,https://stables.donkey.bike/api/public/gbfs/3.0/donkey_kielsmile/gbfs.json
+DE,Donkey Republic Munich,https://stables.donkey.bike/api/public/gbfs/3.0/donkey_munich/gbfs.json
+NL,Donkey Republic Qbuzz,https://stables.donkey.bike/api/public/gbfs/3.0/donkey_qbuzz/gbfs.json
+DE,Donkey Regensburg,https://stables.donkey.bike/api/public/gbfs/3.0/donkey_regensburg_straubing/gbfs.json
+NL,Donkey Republic Rivierenland,https://stables.donkey.bike/api/public/gbfs/3.0/donkey_rivierenland/gbfs.json
+NL,Donkey Republic Rotterdam/Den Haag,https://stables.donkey.bike/api/public/gbfs/3.0/donkey_rotterdam_den_haag/gbfs.json
+IT,Dott Bergamo,https://gbfs.api.ridedott.com/public/v2/bergamo/gbfs.json
+GB,Dott brunel-university,https://gbfs.api.ridedott.com/public/v2/brunel-university/gbfs.json
+DK,Dott Frederikssund,https://gbfs.api.ridedott.com/public/v2/frederikssund/gbfs.json
+PL,Dott Gdansk-Osowa,https://gbfs.api.ridedott.com/public/v2/gdansk-osowa/gbfs.json
+IT,Dott Jesolo,https://gbfs.api.ridedott.com/public/v2/jesolo/gbfs.json
+BE,Dott Kortrijk,https://gbfs.api.ridedott.com/public/v2/kortrijk/gbfs.json
+FI,Dott Kouvola,https://gbfs.api.ridedott.com/public/v2/kouvola/gbfs.json
+PL,Dott Płock,https://gbfs.api.ridedott.com/public/v2/płock/gbfs.json
+NL,Dott Veldhoven,https://gbfs.api.ridedott.com/public/v2/veldhoven/gbfs.json
+CH,Donkey EPFL - Lausanne,https://stables.donkey.bike/api/public/gbfs/3.0/epfl_lausanne/gbfs.json
+DE,esel.ac,https://di.esel.ac/gbfs/gbfs.json
+NZ,Flamingo Christchurch,https://data.rideflamingo.com/gbfs/3/christchurch/gbfs.json
+DE,Ford Carsharing (Autohaus Kauderer),https://api.mobidata-bw.de/sharing/gbfs/v3/ford_carsharing_autohauskauderer/gbfs
+DE,franke,https://api.mobidata-bw.de/sharing/gbfs/v3/freibe/gbfs
+BE,Getaround Aalst,https://getaround.com/gbfs/v3/aalst/gbfs
+FR,Getaround Aix-En-Provence,https://getaround.com/gbfs/v3/aix-en-provence/gbfs
+FR,Getaround Ajaccio,https://getaround.com/gbfs/v3/ajaccio/gbfs
+FR,Getaround Albi,https://getaround.com/gbfs/v3/albi/gbfs
+ES,Getaround Alcobendas,https://getaround.com/gbfs/v3/alcobendas/gbfs
+NO,Getaround Alesund,https://getaround.com/gbfs/v3/alesund/gbfs
+ES,Getaround Alicante,https://getaround.com/gbfs/v3/alicante/gbfs
+NO,Getaround Alta,https://getaround.com/gbfs/v3/alta/gbfs
+FR,Getaround Amiens,https://getaround.com/gbfs/v3/amiens/gbfs
+FR,Getaround Angers,https://getaround.com/gbfs/v3/angers/gbfs
+FR,Getaround Antibes,https://getaround.com/gbfs/v3/antibes/gbfs
+FR,Getaround Antony,https://getaround.com/gbfs/v3/antony/gbfs
+BE,Getaround Antwerpen,https://getaround.com/gbfs/v3/antwerpen/gbfs
+ES,Getaround Aranjuez,https://getaround.com/gbfs/v3/aranjuez/gbfs
+NO,Getaround Arendal,https://getaround.com/gbfs/v3/arendal/gbfs
+FR,Getaround Argenteuil,https://getaround.com/gbfs/v3/argenteuil/gbfs
+FR,Getaround Arles,https://getaround.com/gbfs/v3/arles/gbfs
+NO,Getaround Asker,https://getaround.com/gbfs/v3/asker/gbfs
+FR,Getaround Aubervilliers,https://getaround.com/gbfs/v3/aubervilliers/gbfs
+FR,Getaround Aulnay-Sous-Bois,https://getaround.com/gbfs/v3/aulnay-sous-bois/gbfs
+FR,Getaround Avignon,https://getaround.com/gbfs/v3/avignon/gbfs
+ES,Getaround Badalona,https://getaround.com/gbfs/v3/badalona/gbfs
+NO,Getaround Baerum,https://getaround.com/gbfs/v3/baerum/gbfs
+ES,Getaround Barcelona,https://getaround.com/gbfs/v3/barcelona/gbfs
+FR,Getaround Bayeux,https://getaround.com/gbfs/v3/bayeux/gbfs
+FR,Getaround Bayonne,https://getaround.com/gbfs/v3/bayonne/gbfs
+FR,Getaround Beaumont,https://getaround.com/gbfs/v3/beaumont/gbfs
+FR,Getaround Beauvais,https://getaround.com/gbfs/v3/beauvais/gbfs
+ES,Getaround Benidorm,https://getaround.com/gbfs/v3/benidorm/gbfs
+NO,Getaround Bergen,https://getaround.com/gbfs/v3/bergen/gbfs
+DE,Getaround Berlin,https://getaround.com/gbfs/v3/berlin/gbfs
+FR,Getaround Blois,https://getaround.com/gbfs/v3/blois/gbfs
+NO,Getaround Bodo,https://getaround.com/gbfs/v3/bodo/gbfs
+FR,Getaround Bordeaux,https://getaround.com/gbfs/v3/bordeaux/gbfs
+FR,Getaround Boulogne-Billancourt,https://getaround.com/gbfs/v3/boulogne-billancourt/gbfs
+FR,Getaround Bourges,https://getaround.com/gbfs/v3/bourges/gbfs
+FR,Getaround Brest,https://getaround.com/gbfs/v3/brest/gbfs
+FR,Getaround Brive-La-Gaillarde,https://getaround.com/gbfs/v3/brive-la-gaillarde/gbfs
+FR,Getaround Caen,https://getaround.com/gbfs/v3/caen/gbfs
+FR,Getaround Calais,https://getaround.com/gbfs/v3/calais/gbfs
+ES,Getaround Candelaria,https://getaround.com/gbfs/v3/candelaria/gbfs
+FR,Getaround Cannes,https://getaround.com/gbfs/v3/cannes/gbfs
+ES,Getaround Castelldefels,https://getaround.com/gbfs/v3/castelldefels/gbfs
+FR,Getaround Cergy,https://getaround.com/gbfs/v3/cergy/gbfs
+FR,Getaround Champigny-Sur-Marne,https://getaround.com/gbfs/v3/champigny-sur-marne/gbfs
+BE,Getaround Charleroi,https://getaround.com/gbfs/v3/charleroi/gbfs
+FR,Getaround Clamart,https://getaround.com/gbfs/v3/clamart/gbfs
+FR,Getaround Clermont-Ferrand,https://getaround.com/gbfs/v3/clermont-ferrand/gbfs
+FR,Getaround Clichy,https://getaround.com/gbfs/v3/clichy/gbfs
+FR,Getaround Colmar,https://getaround.com/gbfs/v3/colmar/gbfs
+FR,Getaround Colombes,https://getaround.com/gbfs/v3/colombes/gbfs
+ES,Getaround Coslada,https://getaround.com/gbfs/v3/coslada/gbfs
+FR,Getaround Courbevoie,https://getaround.com/gbfs/v3/courbevoie/gbfs
+FR,Getaround Dijon,https://getaround.com/gbfs/v3/dijon/gbfs
+NO,Getaround Drammen,https://getaround.com/gbfs/v3/drammen/gbfs
+FR,Getaround Drancy,https://getaround.com/gbfs/v3/drancy/gbfs
+FR,Getaround Dunkerque,https://getaround.com/gbfs/v3/dunkerque/gbfs
+DE,Getaround Essen,https://getaround.com/gbfs/v3/essen/gbfs
+NO,Getaround Evenes,https://getaround.com/gbfs/v3/evenes/gbfs
+FR,Getaround Fontenay-Sous-Bois,https://getaround.com/gbfs/v3/fontenay-sous-bois/gbfs
+NO,Getaround Fredrikstad,https://getaround.com/gbfs/v3/fredrikstad/gbfs
+ES,Getaround Fuenlabrada,https://getaround.com/gbfs/v3/fuenlabrada/gbfs
+NO,Getaround Gardermoen,https://getaround.com/gbfs/v3/gardermoen/gbfs
+BE,Getaround Gent,https://getaround.com/gbfs/v3/gent/gbfs
+ES,Getaround Getafe,https://getaround.com/gbfs/v3/getafe/gbfs
+ES,Getaround Granada,https://getaround.com/gbfs/v3/granada/gbfs
+ES,Getaround Granollers,https://getaround.com/gbfs/v3/granollers/gbfs
+AT,Getaround Graz,https://getaround.com/gbfs/v3/graz/gbfs
+FR,Getaround Grenoble,https://getaround.com/gbfs/v3/grenoble/gbfs
+DE,Getaround Hamburg,https://getaround.com/gbfs/v3/hamburg/gbfs
+NO,Getaround Harstad,https://getaround.com/gbfs/v3/harstad/gbfs
+BE,Getaround Hove,https://getaround.com/gbfs/v3/hove/gbfs
+AT,Getaround Innsbruck,https://getaround.com/gbfs/v3/innsbruck/gbfs
+FR,Getaround Issy-Les-Moulineaux,https://getaround.com/gbfs/v3/issy-les-moulineaux/gbfs
+FR,Getaround Ivry-Sur-Seine,https://getaround.com/gbfs/v3/ivry-sur-seine/gbfs
+NO,Getaround Kirkenes,https://getaround.com/gbfs/v3/kirkenes/gbfs
+NO,Getaround Kristiansand,https://getaround.com/gbfs/v3/kristiansand/gbfs
+FR,Getaround Laval,https://getaround.com/gbfs/v3/laval/gbfs
+NO,Getaround Leknes,https://getaround.com/gbfs/v3/leknes/gbfs
+BE,Getaround Leuven,https://getaround.com/gbfs/v3/leuven/gbfs
+FR,Getaround Levallois-Perret,https://getaround.com/gbfs/v3/levallois-perret/gbfs
+DE,Getaround Leverkusen,https://getaround.com/gbfs/v3/leverkusen/gbfs
+FR,Getaround Lille,https://getaround.com/gbfs/v3/lille/gbfs
+NO,Getaround Lillehammer,https://getaround.com/gbfs/v3/lillehammer/gbfs
+NO,Getaround Lillestrom,https://getaround.com/gbfs/v3/lillestrom/gbfs
+FR,Getaround Limay,https://getaround.com/gbfs/v3/limay/gbfs
+FR,Getaround Limoges,https://getaround.com/gbfs/v3/limoges/gbfs
+NO,Getaround Lorenskog,https://getaround.com/gbfs/v3/lorenskog/gbfs
+FR,Getaround Lorient,https://getaround.com/gbfs/v3/lorient/gbfs
+FR,Getaround Lyon,https://getaround.com/gbfs/v3/lyon/gbfs
+FR,Getaround Macau,https://getaround.com/gbfs/v3/macau/gbfs
+FR,Getaround Macon,https://getaround.com/gbfs/v3/macon/gbfs
+ES,Getaround Madrid,https://getaround.com/gbfs/v3/madrid/gbfs
+FR,Getaround Maisons-Alfort,https://getaround.com/gbfs/v3/maisons-alfort/gbfs
+ES,Getaround Majadahonda,https://getaround.com/gbfs/v3/majadahonda/gbfs
+ES,Getaround Mao,https://getaround.com/gbfs/v3/mao/gbfs
+FR,Getaround Marseille,https://getaround.com/gbfs/v3/marseille/gbfs
+FR,Getaround Meaux,https://getaround.com/gbfs/v3/meaux/gbfs
+BE,Getaround Mechelen,https://getaround.com/gbfs/v3/mechelen/gbfs
+FR,Getaround Meru,https://getaround.com/gbfs/v3/meru/gbfs
+FR,Getaround Metz,https://getaround.com/gbfs/v3/metz/gbfs
+NO,Getaround Molde,https://getaround.com/gbfs/v3/molde/gbfs
+FR,Getaround Montauban,https://getaround.com/gbfs/v3/montauban/gbfs
+FR,Getaround Montpellier,https://getaround.com/gbfs/v3/montpellier/gbfs
+FR,Getaround Montreuil,https://getaround.com/gbfs/v3/montreuil/gbfs
+NO,Getaround Moss,https://getaround.com/gbfs/v3/moss/gbfs
+FR,Getaround Mulhouse,https://getaround.com/gbfs/v3/mulhouse/gbfs
+FR,Getaround Nancy,https://getaround.com/gbfs/v3/nancy/gbfs
+FR,Getaround Nanterre,https://getaround.com/gbfs/v3/nanterre/gbfs
+FR,Getaround Nantes,https://getaround.com/gbfs/v3/nantes/gbfs
+FR,Getaround Narbonne,https://getaround.com/gbfs/v3/narbonne/gbfs
+NO,Getaround Narvik,https://getaround.com/gbfs/v3/narvik/gbfs
+NO,Getaround Nesodden,https://getaround.com/gbfs/v3/nesodden/gbfs
+FR,Getaround Neuilly-Sur-Seine,https://getaround.com/gbfs/v3/neuilly-sur-seine/gbfs
+FR,Getaround Nice,https://getaround.com/gbfs/v3/nice/gbfs
+FR,Getaround Niort,https://getaround.com/gbfs/v3/niort/gbfs
+FR,Getaround Noisy-Le-Grand,https://getaround.com/gbfs/v3/noisy-le-grand/gbfs
+DE,Getaround Norderstedt,https://getaround.com/gbfs/v3/norderstedt/gbfs
+FR,Getaround Orange,https://getaround.com/gbfs/v3/orange/gbfs
+NO,Getaround Oslo,https://getaround.com/gbfs/v3/oslo/gbfs
+FR,Getaround Pantin,https://getaround.com/gbfs/v3/pantin/gbfs
+FR,Getaround Paris,https://getaround.com/gbfs/v3/paris/gbfs
+ES,Getaround Parla,https://getaround.com/gbfs/v3/parla/gbfs
+ES,Getaround Paterna,https://getaround.com/gbfs/v3/paterna/gbfs
+FR,Getaround Pau,https://getaround.com/gbfs/v3/pau/gbfs
+FR,Getaround Perpignan,https://getaround.com/gbfs/v3/perpignan/gbfs
+FR,Getaround Pessac,https://getaround.com/gbfs/v3/pessac/gbfs
+FR,Getaround Poitiers,https://getaround.com/gbfs/v3/poitiers/gbfs
+NO,Getaround Porsgrunn,https://getaround.com/gbfs/v3/porsgrunn/gbfs
+DE,Getaround Pulheim,https://getaround.com/gbfs/v3/pulheim/gbfs
+FR,Getaround Quimper,https://getaround.com/gbfs/v3/quimper/gbfs
+FR,Getaround Reims,https://getaround.com/gbfs/v3/reims/gbfs
+FR,Getaround Rennes,https://getaround.com/gbfs/v3/rennes/gbfs
+FR,Getaround Roubaix,https://getaround.com/gbfs/v3/roubaix/gbfs
+FR,Getaround Rouen,https://getaround.com/gbfs/v3/rouen/gbfs
+FR,Getaround Rueil-Malmaison,https://getaround.com/gbfs/v3/rueil-malmaison/gbfs
+ES,Getaround Sabadell,https://getaround.com/gbfs/v3/sabadell/gbfs
+FR,Getaround Saint-Brieuc,https://getaround.com/gbfs/v3/saint-brieuc/gbfs
+FR,Getaround Saint-Denis,https://getaround.com/gbfs/v3/saint-denis/gbfs
+FR,Getaround Saint-Laurent,https://getaround.com/gbfs/v3/saint-laurent/gbfs
+FR,Getaround Saint-Louis,https://getaround.com/gbfs/v3/saint-louis/gbfs
+FR,Getaround Saint-Malo,https://getaround.com/gbfs/v3/saint-malo/gbfs
+FR,Getaround Saint-Nazaire,https://getaround.com/gbfs/v3/saint-nazaire/gbfs
+FR,Getaround Saint-Paul,https://getaround.com/gbfs/v3/saint-paul/gbfs
+FR,Getaround Saint-Quentin,https://getaround.com/gbfs/v3/saint-quentin/gbfs
+FR,Getaround Saint-Quentin-En-Yvelines,https://getaround.com/gbfs/v3/saint-quentin-en-yvelines/gbfs
+NO,Getaround Sandefjord,https://getaround.com/gbfs/v3/sandefjord/gbfs
+NO,Getaround Sandvika,https://getaround.com/gbfs/v3/sandvika/gbfs
+FR,Getaround Sarcelles,https://getaround.com/gbfs/v3/sarcelles/gbfs
+FR,Getaround Sartrouville,https://getaround.com/gbfs/v3/sartrouville/gbfs
+BE,Getaround Seraing,https://getaround.com/gbfs/v3/seraing/gbfs
+ES,Getaround Sevilla,https://getaround.com/gbfs/v3/sevilla/gbfs
+NO,Getaround Ski,https://getaround.com/gbfs/v3/ski/gbfs
+NO,Getaround Skien,https://getaround.com/gbfs/v3/skien/gbfs
+NO,Getaround Stavanger,https://getaround.com/gbfs/v3/stavanger/gbfs
+NO,Getaround Stjordal,https://getaround.com/gbfs/v3/stjordal/gbfs
+FR,Getaround Strasbourg,https://getaround.com/gbfs/v3/strasbourg/gbfs
+NO,Getaround Strommen,https://getaround.com/gbfs/v3/strommen/gbfs
+FR,Getaround Tarbes,https://getaround.com/gbfs/v3/tarbes/gbfs
+NO,Getaround Tonsberg,https://getaround.com/gbfs/v3/tonsberg/gbfs
+ES,Getaround Torremolinos,https://getaround.com/gbfs/v3/torremolinos/gbfs
+ES,Getaround Torrent,https://getaround.com/gbfs/v3/torrent/gbfs
+FR,Getaround Toulon,https://getaround.com/gbfs/v3/toulon/gbfs
+FR,Getaround Toulouse,https://getaround.com/gbfs/v3/toulouse/gbfs
+FR,Getaround Tourcoing,https://getaround.com/gbfs/v3/tourcoing/gbfs
+FR,Getaround Tours,https://getaround.com/gbfs/v3/tours/gbfs
+DE,Getaround Troisdorf,https://getaround.com/gbfs/v3/troisdorf/gbfs
+NO,Getaround Tromso,https://getaround.com/gbfs/v3/tromso/gbfs
+NO,Getaround Trondheim,https://getaround.com/gbfs/v3/trondheim/gbfs
+FR,Getaround Troyes,https://getaround.com/gbfs/v3/troyes/gbfs
+ES,Getaround Valdemoro,https://getaround.com/gbfs/v3/valdemoro/gbfs
+FR,Getaround Valence,https://getaround.com/gbfs/v3/valence/gbfs
+ES,Getaround Valencia,https://getaround.com/gbfs/v3/valencia/gbfs
+FR,Getaround Vannes,https://getaround.com/gbfs/v3/vannes/gbfs
+DE,Getaround Velbert,https://getaround.com/gbfs/v3/velbert/gbfs
+FR,Getaround Versailles,https://getaround.com/gbfs/v3/versailles/gbfs
+ES,Getaround Viladecans,https://getaround.com/gbfs/v3/viladecans/gbfs
+FR,Getaround Villeurbanne,https://getaround.com/gbfs/v3/villeurbanne/gbfs
+FR,Getaround Vitry-Sur-Seine,https://getaround.com/gbfs/v3/vitry-sur-seine/gbfs
+BE,Getaround Waterloo,https://getaround.com/gbfs/v3/waterloo/gbfs
+FR,Vélo Fluo Grand-Est,https://gbfs.partners.fifteen.eu/gbfs/2.2/velo-fluo/en/gbfs.json
+FR,GraouLib',https://gbfs.partners.fifteen.eu/gbfs/2.2/metz/en/gbfs.json
+DE,stadtRad - das stadtnavi Lastenrad,https://api.mobidata-bw.de/sharing/gbfs/v3/herrenberg_stadtrad/gbfs
+DE,HERTLEIN Carsharing,https://api.mobidata-bw.de/sharing/gbfs/v3/hertlein_carsharing/gbfs
+DE,Hopp Konstanz,https://api.mobidata-bw.de/sharing/gbfs/v3/hopp_konstanz/gbfs
+FR,IDEcycle (Pau),https://gbfs.partners.fifteen.eu/gbfs/2.2/pau/en/gbfs.json
+NZ,JOLT New Plymouth,https://prod-api.joltscooters.co.nz/api/gbfs/new_plymouth/gbfs.json
+NZ,JOLT Selwyn,https://prod-api.joltscooters.co.nz/api/gbfs/selwyn/gbfs.json
+DE,Lime Stuttgart-Konstanz,https://api.mobidata-bw.de/sharing/gbfs/v3/lime_bw/gbfs
+FR,Lime Lille,https://data.lime.bike/api/partners/v2/gbfs/lille/gbfs.json
+US,Lime Lincoln,https://data.lime.bike/api/partners/v2/gbfs/lincoln/gbfs.json
+CA,Lime Mississauga,https://data.lime.bike/api/partners/v2/gbfs/mississauga/gbfs.json
+IT,Lime Naples,https://data.lime.bike/api/partners/v2/gbfs/naples/gbfs.json
+FR,Lime Nice,https://data.lime.bike/api/partners/v2/gbfs/nice/gbfs.json
+DE,franke,https://api.mobidata-bw.de/sharing/gbfs/v3/lube/gbfs
+US,Divvy,https://gbfs.divvybikes.com/gbfs/2.3/gbfs.json
+US,Inter Bike,https://miamiunderline.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json
+CH,Mobility,https://api.mobidata-bw.de/sharing/gbfs/v3/mobility_ch/gbfs
+FR,MontenVélo,https://gbfs.partners.fifteen.eu/gbfs/2.2/mont_blanc/en/gbfs.json
+FR,PAYS DE L'ARBRESLE - VEL'PAR,https://www.mobility-parc.net/gbfs/v3/ARBRESLE/gbfs.json
+FR,CHATELLERAULT,https://www.mobility-parc.net/gbfs/v3/CHATELLERAULT/gbfs.json
+FR,PAYS DU COQUELICOT,https://www.mobility-parc.net/gbfs/v3/COQUELICOT/gbfs.json
+FR,Estrées Saint Denis,https://www.mobility-parc.net/gbfs/v3/ESTREES/gbfs.json
+FR,Gévaudan,https://www.mobility-parc.net/gbfs/v3/GEVAUDAN/gbfs.json
+FR,VELO VEZERE LASCAUX,https://www.mobility-parc.net/gbfs/v3/LASCAUX/gbfs.json
+FR,OLORON,https://www.mobility-parc.net/gbfs/v3/OLORON/gbfs.json
+FR,VALLEE D'OSSAU,https://www.mobility-parc.net/gbfs/v3/OSSAU/gbfs.json
+FR,PAYS D'OPALE,https://www.mobility-parc.net/gbfs/v3/Opale/gbfs.json
+FR,BYCOR,https://www.mobility-parc.net/gbfs/v3/TARARE/gbfs.json
+FR,Porte de Vassivière,https://www.mobility-parc.net/gbfs/v3/VASSIVIERE/gbfs.json
+FR,NemoVélo,https://api.gbfs.v3.0.ecovelo.mobi/nemovelo/gbfs.json
+CA,Neuron Mobility,https://mds.neuron-mobility.com/yeg/gbfs/2/
+CA,Neuron Mobility,https://mds.neuron-mobility.com/yqr/gbfs/2/
+DE,moin mobil Achim,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_am/gbfs.json
+DE,euregiobike,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_an/gbfs.json
+DE,Campus Berlin-Buch,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_cb/gbfs.json
+AT,EVENTbike - Austria,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_eq/gbfs.json
+PL,GRM Grodzisk Poland,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_gp/gbfs.json
+CZ,nextbike Kyjov,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ky/gbfs.json
+CZ,nextbike Lipník nad Bečvou,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_lb/gbfs.json
+DE,MyRadl,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ml/gbfs.json
+CZ,nextbike Hranice,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_na/gbfs.json
+CZ,nextbike Český Brod,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_nd/gbfs.json
+CZ,nextbike Neratovice,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ne/gbfs.json
+CZ,nextbike Šumperk,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ns/gbfs.json
+PL,Pruszkowski Rower Miejski,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_or/gbfs.json
+CZ,nextbike Otrokovice,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ot/gbfs.json
+PL,Rower Miejski w Ostrowie Wielkopolskim,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_po/gbfs.json
+PL,Tychowski Rower Miejski,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_py/gbfs.json
+CZ,nextbike Roudnice nad Labem,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_rl/gbfs.json
+DE,S11-Bike,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_sv/gbfs.json
+PL,Tarnowski Rower Miejski,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_tn/gbfs.json
+CZ,nextbike Krnov,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_tw/gbfs.json
+DE,StadtRad Greifswald,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ug/gbfs.json
+DE,UsedomRad,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_ur/gbfs.json
+PL,Włower - Włocławski Rower Miejski,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_wf/gbfs.json
+DE,Bikesharing Amprion,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_wp/gbfs.json
+CZ,nextbike Ždár nad Sázavou,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_zs/gbfs.json
+PL,Żyrardowski Rower Miejski,https://gbfs.nextbike.net/maps/gbfs/v2/nextbike_zy/gbfs.json
+FR,RLV'Lib,https://api.gbfs.v3.0.ecovelo.mobi/rlvlib/gbfs.json
+DE,swabi - augsburg,https://gbfs.partners.fifteen.eu/gbfs/2.2/swabi/en/gbfs.json
+RO,Targu Mures,https://targumures.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json
+IT,Cooltra Turin,https://maas.zeus.cooltra.com/gbfs/turin/3.0/en/gbfs.json
+FR,Donkey Republic Valenciennes,https://stables.donkey.bike/api/public/gbfs/3.0/valenciennes/gbfs.json
+FR,VéloModalis - TERRA,https://gbfs.partners.fifteen.eu/gbfs/2.2/velo-modalis/en/gbfs.json
+FR,Vélo Modalis,https://gbfs.partners.fifteen.eu/gbfs/2.2/angouleme/en/gbfs.json
+FR,Vélomagg,https://gbfs.theta.fifteen.eu/gbfs/montpellier/gbfs.json
+FR,VéloMoove,https://gbfs.partners.fifteen.eu/gbfs/2.2/pompey/en/gbfs.json
+US,Veo University of Alabama,https://cluster-prod.veoride.com/api/shares/name/ala/gbfs
+US,Veo Asbury Park,https://cluster-prod.veoride.com/api/shares/name/asb/gbfs
+US,Veo Birmingham,https://cluster-prod.veoride.com/api/shares/name/bir/gbfs
+US,Veo Bend,https://cluster-prod.veoride.com/api/shares/name/bnd/gbfs
+US,Veo Columbus,https://cluster-prod.veoride.com/api/shares/name/cbs/gbfs
+US,Veo Cedar Rapids,https://cluster-prod.veoride.com/api/shares/name/cid/gbfs
+US,Veo Cleveland,https://cluster-prod.veoride.com/api/shares/name/cle/gbfs
+US,Veo College Park,https://cluster-prod.veoride.com/api/shares/name/cpk/gbfs
+US,Veo Charlottesville,https://cluster-prod.veoride.com/api/shares/name/cvl/gbfs
+US,Veo Fayetteville,https://cluster-prod.veoride.com/api/shares/name/fay/gbfs
+US,Veo Gainesville,https://cluster-prod.veoride.com/api/shares/name/gvl/gbfs
+US,Veo Hartford,https://cluster-prod.veoride.com/api/shares/name/hrt/gbfs
+US,"Veo University of Illinois, Urbana-Champaign",https://cluster-prod.veoride.com/api/shares/name/iuc/gbfs
+US,Veo Kansas State University,https://cluster-prod.veoride.com/api/shares/name/ksu/gbfs
+US,Veo New Haven,https://cluster-prod.veoride.com/api/shares/name/nhv/gbfs
+US,Veo New Rochelle,https://cluster-prod.veoride.com/api/shares/name/nrc/gbfs
+US,Veo Newark,https://cluster-prod.veoride.com/api/shares/name/nwk/gbfs
+US,Veo Bronx,https://cluster-prod.veoride.com/api/shares/name/nyc/gbfs
+US,Veo Queens,https://cluster-prod.veoride.com/api/shares/name/nyq/gbfs
+US,Veo University of Oklahoma,https://cluster-prod.veoride.com/api/shares/name/oku/gbfs
+US,Veo Orlando,https://cluster-prod.veoride.com/api/shares/name/orl/gbfs
+US,Veo Oregon State Univeristy,https://cluster-prod.veoride.com/api/shares/name/osu/gbfs
+US,Veo Pensacola,https://cluster-prod.veoride.com/api/shares/name/pnc/gbfs
+US,Veo Purdue University,https://cluster-prod.veoride.com/api/shares/name/pur/gbfs
+US,Veo Rochester,https://cluster-prod.veoride.com/api/shares/name/roc/gbfs
+US,Veo Rutgers University,https://cluster-prod.veoride.com/api/shares/name/rut/gbfs
+US,Veo Sarasota,https://cluster-prod.veoride.com/api/shares/name/sar/gbfs
+US,Veo Southern Illinois University,https://cluster-prod.veoride.com/api/shares/name/siu/gbfs
+US,Veo San Antonio,https://cluster-prod.veoride.com/api/shares/name/stx/gbfs
+US,Veo Syracuse,https://cluster-prod.veoride.com/api/shares/name/syr/gbfs
+US,Veo Texas A&M University,https://cluster-prod.veoride.com/api/shares/name/tam/gbfs
+US,Veo Toledo,https://cluster-prod.veoride.com/api/shares/name/tol/gbfs
+US,Veo Wichita,https://cluster-prod.veoride.com/api/shares/name/wta/gbfs
+US,Veo Washington DC,https://cluster-prod.veoride.com/api/shares/name/xdc/gbfs
+US,Veo Oakland/Emeryville/Berkeley/Albany,https://cluster-prod.veoride.com/api/shares/name/xeb/gbfs
+US,Veo Los Angeles,https://cluster-prod.veoride.com/api/shares/name/xla/gbfs
+FR,Viavélo,https://api.gbfs.v3.0.ecovelo.mobi/viavelo/gbfs.json
+FR,Voi Paris,https://api.voiapp.io/gbfs/fr/6bb6b5dc-1cda-4da7-9216-d3023a0bc54a/v2/352/gbfs.json
+FR,Voi V'Lônes,https://api.voiapp.io/gbfs/fr/6bb6b5dc-1cda-4da7-9216-d3023a0bc54a/v2/406/gbfs.json
+NO,Voi Fredrikstad,https://api.entur.io/mobility/v2/gbfs/v3/voifredrikstad/gbfs
+DE,Zeus Schwäbisch Gmünd,https://zeus.city/api/v1/mds/gbfs/schwabisch%20gmund/gbfs.json

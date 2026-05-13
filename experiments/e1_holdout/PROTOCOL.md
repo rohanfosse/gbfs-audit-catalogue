@@ -4,6 +4,19 @@
 > the *taxonomy-derivation* phase from the *taxonomy-evaluation* phase
 > in calendar time.
 
+> **Status (2026-05-13) : RETROSPECTIVE VERSION EXECUTED.** A
+> retrospective version of this protocol was run on 2026-05-13 by
+> taking the catalogue diff between commit `15e34e6` (2025-11-11)
+> and the audit-pipeline rule-freeze commit. 345 systems were added
+> in that six-month window ; 39 had a non-empty
+> `station_information` feed and were audited live. Two of the
+> three hypotheses pass strictly ; H1 marginally fails the strict
+> interval (17.9 % vs [9.5 %, 17.5 %]) but the deviation is
+> non-significant under Wilson 95 % CI [9.0 %, 32.6 %]. Full
+> results in `held_out_analysis.md` of this directory ; the
+> prospective version remains scheduled for 2026-11-13 with a
+> larger held-out window.
+
 ## Pre-registration (this commit)
 
 | Artefact | Value |

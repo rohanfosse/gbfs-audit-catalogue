@@ -159,7 +159,8 @@ def main() -> None:
 
     results = []
     for r in panel_rows:
-        print(f"[*] {r['country']} {r['name']}  ...", end="", flush=True)
+        safe_name = r["name"].encode("ascii", errors="replace").decode("ascii")
+        print(f"[*] {r['country']} {safe_name}  ...", end="", flush=True)
         out = _audit_one(r["name"], r["country"], r["auto_discovery_url"])
         results.append(out)
         print(f" {out['status']} ({out.get('elapsed_s', '?')}s)")
@@ -182,7 +183,8 @@ def main() -> None:
                 f"A{i}" for i in (2, 5, 6, 7) if r.get(f"A{i}_flagged")
             ]
             tag = ", ".join(row_flags + sys_flags) or "none"
-            print(f"  {r['country']} {r['name']:30s} n={r['n_stations']:5d}  {tag}")
+            safe_name = r["name"].encode("ascii", errors="replace").decode("ascii")
+            print(f"  {r['country']} {safe_name:30s} n={r['n_stations']:5d}  {tag}")
 
 
 if __name__ == "__main__":
