@@ -1025,7 +1025,16 @@ aggregates A1--A5 only. A4 is the geospatial out-of-perimeter
 class; it requires more than 5\,\% of stations and at least 5
 absolute outside-country stations to flag, to avoid edge-of-coast
 false positives. Countries with at least 30 audited systems or
-notable structural anomaly concentrations are shown.}
+notable structural anomaly concentrations are shown.
+\emph{Reproducibility note.}~The per-country counts are produced by
+\texttt{scripts/audit\_live\_systems.py -{}-infer-type} against the
+1{,}509-system MobilityData catalogue. The \texttt{-{}-infer-type}
+flag activates the operator-name heuristics (regexes for car-sharing
+and free-floating brands listed at the top of the script) which are
+necessary to fire A1 and A3 on a catalogue where \texttt{station\_type}
+is not always declared. Numbers re-fetched at a later date will drift
+as feeds are added, retired or migrated; the snapshot used here is
+archived in \texttt{experiments/e2\_threshold\_sensitivity/global\_audit\_results\_typed.csv}.}
 \label{tab:global-audit}
 \small
 \begin{tabular}{@{}lrrrrrrr@{}}
