@@ -2,9 +2,9 @@
 
 **A reproducible audit of 1,509 open bike-sharing feeds across 48 countries.**
 
-The General Bikeshare Feed Specification (GBFS) is the open standard that municipal bike-sharing operators publish on national open-data portals. The standard guarantees syntactic interoperability — but not semantic consistency. The audit reported here exposes **seven recurring anomaly classes (A1–A7)** that together reclassify **30.9 %** of the raw French stations and flag 215 systems worldwide that the v1.0 taxonomy would otherwise miss.
+The General Bikeshare Feed Specification (GBFS) is the open standard that municipal bike-sharing operators publish on national open-data portals. The standard guarantees syntactic interoperability — but not semantic consistency. The audit reported here exposes a unified data-quality taxonomy of seven classes — **five structural errors (A1–A5)** plus **two semantic warnings (A6–A7)** for spec-compliant patterns that nevertheless make a column non-aggregable — and **removes 30.9 %** of the raw French stations from the catalogue while relabelling a further 61 %.
 
-The result is the **GBFS Audit Catalogue v1.0**, a 46-column reference dataset for 46,307 certified stations across 123 French operators, with per-row anomaly flags and contextual enrichment from INSEE, BAAC, BD TOPO, BD ALTI and the national GTFS aggregator.
+The result is the **GBFS Audit Catalogue v1.0.1**, a 46-column reference dataset for 46,307 certified stations across 123 French operators, with per-row flags and contextual enrichment from INSEE, BAAC, BD TOPO, BD ALTI and the national GTFS aggregator.
 
 ---
 
@@ -31,9 +31,9 @@ gs = pd.read_parquet(
 ```python
 # High-confidence dock-based stations
 clean = gs[(gs.station_type == "docked_bike") & (gs.audit_confidence == "high")]
-print(len(clean))  # 5,402
+print(len(clean))  # 4,721
 
-# Operator-driven anomaly hotspots
+# Operator-driven flag hotspots
 gs.groupby("operator_name").agg(
     n=("uid", "size"),
     A3_rate=("flag_A3", "mean"),
@@ -47,26 +47,28 @@ gs.groupby("operator_name").agg(
 
 | Resource | URL |
 |---|---|
-| **Paper (CSI 2026, under review)** | preprint coming |
+| **Paper (CSI 2026)** | Manuscript under peer review; preprint forthcoming |
 | **Zenodo deposit (DOI)** | [10.5281/zenodo.20125460](https://doi.org/10.5281/zenodo.20125460) |
 | **Hugging Face Datasets** | [rohanfosse/gbfs-audit-catalogue](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue) |
 | **Interactive dashboard** | [gbfs-audit.streamlit.app](https://gbfs-audit.streamlit.app) |
-| **Source code & audit pipeline** | [github.com/rohanfosse/bikeshare-data-explorer](https://github.com/rohanfosse/bikeshare-data-explorer) |
-| **Companion notebook (8 recipes)** | [catalogue_recipes.ipynb](https://github.com/rohanfosse/bikeshare-data-explorer/blob/main/papers/01_gold_standard/notebooks/catalogue_recipes.ipynb) |
+| **Source code & audit pipeline** | [github.com/rohanfosse/gbfs-audit-catalogue](https://github.com/rohanfosse/gbfs-audit-catalogue) |
+| **Companion notebook (8 recipes)** | [notebooks/catalogue_recipes.ipynb](https://github.com/rohanfosse/gbfs-audit-catalogue/blob/main/notebooks/catalogue_recipes.ipynb) |
 
 ---
 
-## The seven anomaly classes
+## The seven data-quality classes
 
-| Class | Name | Signature | FR | Global |
-|---|---|---|---|---|
-| A1 | Out-of-domain inclusion | car-sharing labelled as BSS | 14 | 46 |
-| A2 | Placeholder capacity | constant non-zero `c` on all stations | 3 | 48 |
-| A3 | Structural over-capacity | conditional averaging on free-floating | 8 | 33 |
-| A4 | Geospatial error | transposed coords or >3σ outliers | 3.8 % stns | 81 |
-| A5 | Out-of-perimeter | system area >50,000 km² or overseas | 5 | 17 |
-| A6 | Zero-capacity dock | ≥1 % stations declare `c = 0` | 0 | 14 |
-| A7 | Null capacity field | ≥50 % stations declare `c = NaN` | 19 (FF) | 215 |
+Five **structural errors** (A1–A5) plus two **semantic warnings** (A6–A7) for spec-compliant publication patterns whose downstream-consumer interpretation is ambiguous.
+
+| Class | Type | Name | Signature | FR | Global |
+|---|---|---|---|---|---|
+| A1 | structural | Out-of-domain inclusion | car-sharing advertised as BSS | 17 | 46 |
+| A2 | structural | Placeholder capacity | constant non-zero `c` across docked subset | 1 | 48 |
+| A3 | structural | Structural over-capacity | conditional averaging on free-floating | 41 | 33 |
+| A4 | structural | Geospatial outlier | 3-σ on per-system nearest-neighbour distance | 78 (1.1 % stns) | 81 |
+| A5 | structural | Out-of-perimeter | system bbox > 50,000 km² | 4 | 17 |
+| A6 | warning | Zero-capacity dock | ≥ 1 % docked stations with `c = 0` | 0 | 14 |
+| A7 | warning | Null capacity field | ≥ 50 % stations with `c = NaN` | 32 (FF) | 215 |
 
 ---
 
@@ -97,7 +99,7 @@ The full machine-readable schema ships as a JSON Schema, a Frictionless Data Pac
              A reproducible anomaly taxonomy for open mobility data},
   journal = {Computer Standards \& Interfaces},
   year    = {2026},
-  note    = {Under review}
+  note    = {Manuscript under peer review; preprint forthcoming}
 }
 
 @dataset{Fosse2026gbfsdata,

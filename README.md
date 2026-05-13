@@ -26,16 +26,18 @@ free-floating fleet average, placeholder constant, NaN, etc.).
 This repository releases:
 
 - **Data** — a 46-column Parquet of 46,307 audited stations across 97 French
-  cities, with per-row anomaly flags (`flag_A1` … `flag_A7`), audited
+  cities, with per-row flags (`flag_A1` … `flag_A7`), audited
   capacities, network-geometry features and contextual enrichment from
   INSEE, IGN, ONISR and the national GTFS aggregator.
 - **Code** — `audit_pipeline`, a small Python package that re-runs the
-  Tier-1 audit (seven anomaly classes) and Tier-2 KD-tree network
-  enrichment on any compatible raw GBFS dump.
+  Tier-1 audit (five structural errors A1–A5 + two semantic warnings
+  A6–A7) and Tier-2 KD-tree network enrichment on any compatible raw
+  GBFS dump.
 - **Reproduction artefacts** — the manuscript LaTeX source, a Jupyter
   notebook with eight runnable recipes, a Docker image for bit-exact
-  reproduction, a Streamlit dashboard, and a pytest suite that exercises
-  every anomaly detector.
+  reproduction, a Streamlit dashboard with a Validation tab covering
+  E5 (live cross-country panel) and E1 (retrospective hold-out), and
+  a pytest suite that exercises every detector.
 
 Intended for researchers in transport policy, urban mobility, data
 quality and FAIR open data, as well as operators and regulators who
@@ -46,13 +48,14 @@ need a sanity-checked snapshot of the French bike-sharing landscape.
 | Indicator | Value |
 | --- | --- |
 | GBFS systems audited worldwide | 1,509 (48 countries) |
-| Systems with at least one A1 to A7 flag | 204 (A1 to A5) + 14 (A6) + 215 (A7) |
+| Structural errors flagged globally (A1–A5) | 204 systems |
+| Semantic warnings flagged globally (A6, A7) | 14 (A6) + 215 (A7) |
 | French GBFS systems audited | 123 |
 | Certified stations released | 46,307 |
 | Dock-based stations (all) | 5,442 |
-| Dock-based stations (high audit confidence) | 5,402 |
+| Dock-based stations (high audit confidence) | 4,721 |
 | Cities covered | 97 |
-| Raw stations reclassified | 30.9 % (95 % bootstrap CI [30.5, 31.3]) |
+| Raw stations removed from the catalogue | 30.9 % (further 61 % relabelled) |
 | Columns in the released schema | 46 typed columns |
 | Parquet file size | 6.6 MB |
 
@@ -89,10 +92,10 @@ summary = load_summary()     # one row per audited system
 # All dock-based stations: 5,442
 docked = gs[gs.station_type == "docked_bike"]
 
-# Same, restricted to systems the audit is confident about: 5,402
+# Same, restricted to systems the audit is confident about: 4,721
 clean = docked[docked.audit_confidence == "high"]
 
-# Per-operator anomaly rates
+# Per-operator flag rates
 gs.groupby("operator_name").agg(
     n=("uid", "size"),
     A3_rate=("flag_A3", "mean"),
@@ -127,20 +130,23 @@ gbfs-audit-catalogue/
 └── CITATION.cff         Machine-readable citation
 ```
 
-## The seven anomaly classes
+## The seven data-quality classes
 
-The unified taxonomy is built jointly from the French corpus and the
-global MobilityData catalogue.
+Five **structural errors** (A1–A5) plus two **semantic warnings**
+(A6–A7) for spec-compliant publication patterns whose
+downstream-consumer interpretation is ambiguous. The unified
+taxonomy is built jointly from the French corpus and the global
+MobilityData catalogue.
 
-| Class | Name | Signature | FR systems | Global systems |
-| --- | --- | --- | --- | --- |
-| A1 | Out-of-domain inclusion | Car-sharing advertised as a bike-sharing system | 14 | 46 |
-| A2 | Placeholder capacity | Constant non-zero capacity across all stations | 3 | 48 |
-| A3 | Structural over-capacity | Conditional averaging on free-floating fleet anchors | 8 | 33 |
-| A4 | Geospatial error | Transposed coordinates or stations beyond 3 sigma | 3.8 % stations | 81 |
-| A5 | Out-of-perimeter coverage | System area larger than 50,000 km^2 or out-of-jurisdiction | 5 | 17 |
-| A6 | Zero-capacity dock | At least 1 % of stations declare capacity = 0 | 0 | 14 |
-| A7 | Null capacity field | At least 50 % of stations declare capacity = NaN | 19 (FF) | 215 |
+| Class | Type | Name | Signature | FR | Global |
+| --- | --- | --- | --- | --- | --- |
+| A1 | structural | Out-of-domain inclusion | Car-sharing advertised as a bike-sharing system | 17 | 46 |
+| A2 | structural | Placeholder capacity | Constant non-zero capacity across docked subset | 1 | 48 |
+| A3 | structural | Structural over-capacity | Conditional averaging on free-floating fleet anchors | 41 | 33 |
+| A4 | structural | Geospatial outlier | 3-sigma outlier on per-system nearest-neighbour distance | 78 (1.1 % stns) | 81 |
+| A5 | structural | Out-of-perimeter coverage | System bounding box > 50,000 km² | 4 | 17 |
+| A6 | warning | Zero-capacity dock | ≥ 1 % of docked stations declare capacity = 0 | 0 | 14 |
+| A7 | warning | Null capacity field | ≥ 50 % of stations declare capacity = NaN | 32 (FF) | 215 |
 
 ## Schema (46 columns)
 
@@ -207,7 +213,7 @@ pytest                              # 24 tests, ~1 s
 pytest --cov=audit_pipeline         # with coverage (currently 85 %)
 ```
 
-The suite exercises each of the seven anomaly classes on dedicated
+The suite exercises each of the seven data-quality classes on dedicated
 synthetic fixtures, plus the end-to-end `enrich()` pipeline and the
 operator-normalisation lookup. It runs on every push to `main` and on
 every pull request via the GitHub Actions workflow at

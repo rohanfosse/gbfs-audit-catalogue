@@ -39,9 +39,9 @@ gs = load_dataset("rohanfosse/gbfs-audit-catalogue", split="train").to_pandas()
 
 # High-confidence dock-based stations
 clean = gs[(gs.station_type == "docked_bike") & (gs.audit_confidence == "high")]
-print(len(clean))  # 5,402
+print(len(clean))  # 4,721
 
-# Per-operator anomaly rates
+# Per-operator flag rates
 gs.groupby("operator_name").agg(
     n=("uid", "size"),
     A3_rate=("flag_A3", "mean"),
@@ -53,7 +53,7 @@ gs.groupby("operator_name").agg(
 
 The General Bikeshare Feed Specification (GBFS) is the open standard that French bike-sharing operators must publish on `transport.data.gouv.fr` under the 2019 Mobility Orientation Law (LOM). The standard guarantees syntactic interoperability but **not** semantic consistency: identical fields carry mutually incompatible meanings across operators.
 
-This dataset is the output of a systematic audit of the 1,509 GBFS systems catalogued by MobilityData worldwide. Seven recurring anomaly classes (A1–A7) are detected at the row level; 30.9% of the raw French stations are reclassified, removed, or relabelled. The remaining 46,307 stations are released here with per-row anomaly flags and contextual enrichment so that researchers can reuse the audited data without rerunning the pipeline.
+This dataset is the output of a systematic audit of the 1,509 GBFS systems catalogued by MobilityData worldwide. Seven data-quality classes — five **structural errors** (A1–A5) plus two **semantic warnings** (A6–A7) — are detected at the row level; 30.9 % of the raw French stations are **removed** from the catalogue and a further 61 % are **relabelled** by the audit. The remaining 46,307 stations are released here with per-row flags and contextual enrichment so that researchers can reuse the audited data without rerunning the pipeline.
 
 ## Schema (46 columns)
 
@@ -71,23 +71,25 @@ This dataset is the output of a systematic audit of the 1,509 GBFS systems catal
 | Socio-economy | `revenu_median_uc`, `gini_revenu`, `revenu_d1`, `ecart_interquar`, `part_menages_voit0` | INSEE Filosofi |
 | Modal share | `part_velo_travail` | INSEE Recensement |
 
-## The seven anomaly classes
+## The seven data-quality classes
 
-| Class | Name | Signature | FR systems | Global systems |
-|---|---|---|---|---|
-| A1 | Out-of-domain inclusion | car-sharing advertised as BSS | 14 | 46 |
-| A2 | Placeholder capacity | constant non-zero c across stations | 3 | 48 |
-| A3 | Structural over-capacity | conditional averaging on free-floating | 8 | 33 |
-| A4 | Geospatial error | transposed coords or >3σ outliers | 3.8% stations | 81 |
-| A5 | Out-of-perimeter | system area >50,000 km² or overseas | 5 | 17 |
-| A6 | Zero-capacity dock | ≥1% stations with c=0 | 0 | 14 |
-| A7 | Null capacity field | ≥50% stations with c=NaN | 19 (FF) | 215 |
+Five structural errors (A1–A5) plus two semantic warnings (A6–A7) for spec-compliant publication patterns whose downstream-consumer interpretation is ambiguous.
+
+| Class | Type | Name | Signature | FR | Global |
+|---|---|---|---|---|---|
+| A1 | structural | Out-of-domain inclusion | car-sharing advertised as BSS | 17 | 46 |
+| A2 | structural | Placeholder capacity | constant non-zero c across docked subset | 1 | 48 |
+| A3 | structural | Structural over-capacity | conditional averaging on free-floating | 41 | 33 |
+| A4 | structural | Geospatial outlier | 3-σ on per-system nearest-neighbour distance | 78 (1.1 % stns) | 81 |
+| A5 | structural | Out-of-perimeter | system bbox > 50,000 km² | 4 | 17 |
+| A6 | warning | Zero-capacity dock | ≥ 1 % docked stations with c = 0 | 0 | 14 |
+| A7 | warning | Null capacity field | ≥ 50 % stations with c = NaN | 32 (FF) | 215 |
 
 ## Provenance
 
 - **Raw source**: 142 candidate GBFS feeds from `transport.data.gouv.fr` (FR national portal) + the MobilityData canonical catalogue (1,509 systems globally).
 - **Audit code**: Python, MIT licence, [github.com/rohanfosse/bikeshare-data-explorer](https://github.com/rohanfosse/bikeshare-data-explorer).
-- **Reference Zenodo deposit**: [10.5281/zenodo.20125460](https://doi.org/10.5281/zenodo.20125460) (concept DOI, current release 1.0.0).
+- **Reference Zenodo deposit**: [10.5281/zenodo.20125460](https://doi.org/10.5281/zenodo.20125460) (concept DOI, current release 1.0.1 with the multi-modal A4 detector).
 
 ## Citation
 
@@ -100,7 +102,7 @@ If you use the catalogue in your research, please cite both the paper and the Ze
              A reproducible anomaly taxonomy for open mobility data},
   journal = {Computer Standards \& Interfaces},
   year    = {2026},
-  note    = {Under review}
+  note    = {Manuscript under peer review; preprint forthcoming}
 }
 
 @dataset{Fosse2026gbfsdata,
