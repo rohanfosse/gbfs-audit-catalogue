@@ -220,8 +220,11 @@ script that refreshes the side branch after edits.
 
 ## Contact
 
-Lead contact: Rohan Fossé, `rfosse@cesi.fr`, CESI LINEACT (EA 7527),
-Montpellier, France. Issues and contributions are welcome at
+**Rohan Fossé** (lead contact, `rfosse@cesi.fr`) — CESI École d'Ingénieurs, Montpellier, France.
+
+**Gaël Pallares** — CESI LINEACT (EA 7527), Montpellier, France.
+
+Issues and contributions are welcome at
 [github.com/rohanfosse/gbfs-audit-catalogue/issues](https://github.com/rohanfosse/gbfs-audit-catalogue/issues).
 
 This repository is the focused publication of one paper in a larger

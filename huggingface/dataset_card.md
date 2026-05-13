@@ -120,6 +120,8 @@ If you use the catalogue in your research, please cite both the paper and the Ze
 ## Issues, contributions, contact
 
 GitHub issues for bugs, schema requests or new audit classes:
-<https://github.com/rohanfosse/bikeshare-data-explorer/issues>
+<https://github.com/rohanfosse/gbfs-audit-catalogue/issues>
 
-Lead contact: Rohan Fossé (`rfosse@cesi.fr`), CESI LINEACT, Montpellier, France.
+**Rohan Fossé** (lead contact, `rfosse@cesi.fr`) — CESI École d'Ingénieurs, Montpellier, France.
+
+**Gaël Pallares** — CESI LINEACT (EA 7527), Montpellier, France.

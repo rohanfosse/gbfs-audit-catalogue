@@ -419,10 +419,13 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.markdown(
-        "Rohan Fossé  \n"
-        "CESI LINEACT (EA 7527)  \n"
+        "**Rohan Fossé**  \n"
+        "CESI École d'Ingénieurs  \n"
         "Montpellier, France  \n"
-        "`rfosse@cesi.fr`"
+        "`rfosse@cesi.fr`\n\n"
+        "**Gaël Pallares**  \n"
+        "CESI LINEACT (EA 7527)  \n"
+        "Montpellier, France"
     )
 
 
@@ -725,8 +728,8 @@ st.markdown(
         color: #5a7a96;
         line-height: 1.55;
     ">
-      <b>GBFS Audit Catalogue v1.0</b>  ·  Fossé &amp; Pallares (2026)
-       ·  CESI LINEACT, Montpellier.
+      <b>GBFS Audit Catalogue v1.0</b>  ·  Fossé (CESI École d'Ingénieurs)
+       &amp; Pallares (CESI LINEACT)  ·  Montpellier, France.
       <br/>
       Data licensed under
       <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank"

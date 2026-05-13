@@ -118,6 +118,8 @@ The full machine-readable schema ships as a JSON Schema, a Frictionless Data Pac
 
 ## Contact
 
-Rohan Fossé — `rfosse@cesi.fr` — CESI LINEACT, Montpellier, France.
+**Rohan Fossé** (lead contact)  ·  `rfosse@cesi.fr`  ·  CESI École d'Ingénieurs, Montpellier, France.
 
-Issues and contributions on [GitHub](https://github.com/rohanfosse/bikeshare-data-explorer/issues).
+**Gaël Pallares**  ·  CESI LINEACT (EA 7527), Montpellier, France.
+
+Issues and contributions on [GitHub](https://github.com/rohanfosse/gbfs-audit-catalogue/issues).
