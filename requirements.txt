@@ -1,18 +1,13 @@
-# GBFS Audit Catalogue -- runtime dependencies
+# GBFS Audit Catalogue -- Streamlit Cloud / runtime dependencies
 # Python >= 3.10
+#
+# Kept lean on purpose: Streamlit Cloud free tier has a build timeout
+# and a 1 GB RAM ceiling. Jupyter, HF Hub CLI and the dev tooling
+# (which are only needed when running the companion notebook or
+# uploading to the Hub) are listed in pyproject.toml under the
+# optional `[notebook]` and `[hub]` extras instead.
 
-# Core data stack
+streamlit>=1.35.0
 pandas>=2.0.0
 numpy>=1.26.0
-pyarrow>=14.0.0          # parquet I/O
-
-# Streamlit dashboard (app/streamlit_app.py)
-streamlit>=1.35.0
-
-# Notebook execution (notebooks/catalogue_recipes.ipynb)
-jupyter>=1.0.0
-ipykernel>=6.25.0
-
-# Optional integrations
-datasets>=4.0.0          # for Hugging Face Hub loading
-huggingface_hub[cli]>=1.0.0
+pyarrow>=14.0.0

@@ -66,8 +66,25 @@ def load_catalogue(local: bool = True) -> pd.DataFrame:
         ``catalogue/`` ; if False, fetch from Zenodo over HTTPS.
     """
     if local and CATALOGUE_FILE.exists():
-        return pd.read_parquet(CATALOGUE_FILE)
-    return pd.read_parquet(ZENODO_PARQUET_URL)
+        df = pd.read_parquet(CATALOGUE_FILE)
+    else:
+        df = pd.read_parquet(ZENODO_PARQUET_URL)
+
+    # Streamlit / pyarrow round-trip stability : convert pandas nullable
+    # extension dtypes (``Float64`` / ``Int64`` / etc.) back to the
+    # equivalent numpy dtypes. The audit columns ``capacity_raw`` and
+    # ``capacity_audited`` are intentionally NaN-friendly, and float64
+    # carries NaN natively without extension-dtype overhead.
+    for col in df.columns:
+        s = df[col]
+        dtype_name = str(s.dtype)
+        if dtype_name == "Float64":
+            df[col] = s.astype("float64")
+        elif dtype_name == "Int64":
+            df[col] = s.astype("float64")  # int + NaN -> float
+        elif dtype_name == "boolean":
+            df[col] = s.astype("bool")
+    return df
 
 
 def load_summary() -> pd.DataFrame:

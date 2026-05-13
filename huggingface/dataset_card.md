@@ -25,45 +25,6 @@ configs:
     data_files:
       - split: train
         path: stations_gold_standard_final.parquet
-dataset_info:
-  features:
-    - name: uid
-      dtype: string
-    - name: system_id
-      dtype: string
-    - name: city
-      dtype: string
-    - name: lat
-      dtype: float64
-    - name: lon
-      dtype: float64
-    - name: station_type
-      dtype: string
-    - name: capacity_raw
-      dtype: float64
-    - name: capacity_audited
-      dtype: float64
-    - name: flag_A1
-      dtype: bool
-    - name: flag_A2
-      dtype: bool
-    - name: flag_A3
-      dtype: bool
-    - name: flag_A4
-      dtype: bool
-    - name: flag_A5
-      dtype: bool
-    - name: flag_A6
-      dtype: bool
-    - name: flag_A7
-      dtype: bool
-    - name: operator_name
-      dtype: string
-    - name: audit_confidence
-      dtype: string
-  splits:
-    - name: train
-      num_examples: 46307
 ---
 
 # GBFS Audit Catalogue
