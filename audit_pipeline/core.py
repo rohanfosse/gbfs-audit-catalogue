@@ -7,11 +7,21 @@ re-run the Tier-1 / Tier-2 enrichment over a compatible raw parquet.
 
 The audit logic itself is documented in the companion paper
 (Foss\'e & Pallares, 2026, Computer Standards & Interfaces).
+
+Anomaly granularity
+-------------------
+- A1 / A3 / A4 are *row-level* flags (this particular station is the
+  problem).
+- A2 / A5 / A6 / A7 are *system-level* flags (every row of a flagged
+  system carries True). A2/A6/A7 require at least 20 stations in the
+  system before the threshold is evaluated, to keep the audit verdict
+  statistically meaningful on small fleets.
 """
 from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -23,6 +33,18 @@ ZENODO_PARQUET_URL = (
     "https://zenodo.org/records/20125460/files/"
     "stations_gold_standard_final.parquet"
 )
+
+# Tunables (exposed as module-level constants so tests and downstream
+# consumers can reference the exact thresholds documented in the paper).
+A2_MIN_STATIONS = 20
+A4_MIN_STATIONS = 5
+A4_SIGMA = 3.0
+A4_MIN_THRESHOLD_M = 1_000.0
+A5_BBOX_MAX_KM2 = 50_000.0
+A6_RATE_THRESHOLD = 0.01
+A6_MIN_STATIONS = 20
+A7_RATE_THRESHOLD = 0.50
+A7_MIN_STATIONS = 20
 
 ANOMALY_CLASSES: dict[str, dict[str, str]] = {
     "A1": {
@@ -93,7 +115,7 @@ def load_summary() -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# Enrichment helpers
+# Operator normalisation
 # ---------------------------------------------------------------------------
 
 _OPERATOR_PATTERNS: list[tuple[str, str]] = [
@@ -129,105 +151,269 @@ def detect_operator(system_id: str, system_name: str) -> str:
     return str(system_name or "Unknown").strip()
 
 
-def _compute_tier1(df: pd.DataFrame) -> pd.DataFrame:
-    """Tier-1 audit visibility columns (11 new fields)."""
-    out = df.copy()
-    out["capacity_raw"] = out["capacity"].astype("Float64")
-    out["capacity_audited"] = out["capacity"].where(
-        out["station_type"] == "docked_bike", np.nan
-    ).astype("Float64")
+# ---------------------------------------------------------------------------
+# Geodesy
+# ---------------------------------------------------------------------------
 
-    out["flag_A1"] = out["station_type"] == "carsharing"
+_EARTH_RADIUS_M = 6_371_000.0
+
+
+def _project_meters(lat: np.ndarray, lon: np.ndarray) -> np.ndarray:
+    """Equirectangular projection to local metres around the dataset mean.
+
+    Accurate enough for the sub-100 km neighbourhood queries used by the
+    audit. For continental-scale queries the caller should switch to a
+    proper haversine distance.
+    """
+    lat_r = np.deg2rad(np.asarray(lat, dtype="float64"))
+    lon_r = np.deg2rad(np.asarray(lon, dtype="float64"))
+    if lat_r.size == 0:
+        return np.empty((0, 2), dtype="float64")
+    mean_lat = float(np.nanmean(lat_r))
+    x = _EARTH_RADIUS_M * lon_r * np.cos(mean_lat)
+    y = _EARTH_RADIUS_M * lat_r
+    return np.column_stack([x, y])
+
+
+# ---------------------------------------------------------------------------
+# Tier-1 : audit visibility flags (A1..A7)
+# ---------------------------------------------------------------------------
+
+
+def _flag_a2(out: pd.DataFrame) -> pd.Series:
+    """A2 : placeholder capacity (constant non-zero across the system).
+
+    A2 is only evaluated on the docked-bike subset of each system. On a
+    free-floating system the capacity field is structurally meaningless
+    (already captured by A3), so duplicating the verdict via A2 would
+    inflate the audit counts the paper reports separately for A2 and A3.
+    """
+    docked = out[out["station_type"] == "docked_bike"]
     sys_caps = (
-        out.dropna(subset=["capacity"])
-           .groupby("system_id")["capacity"]
-           .agg(["nunique", "median", "size"])
+        docked.dropna(subset=["capacity"])
+              .groupby("system_id")["capacity"]
+              .agg(["nunique", "median", "size"])
     )
-    a2 = set(sys_caps.index[
+    flagged = set(sys_caps.index[
         (sys_caps["nunique"] == 1)
         & (sys_caps["median"] > 0)
-        & (sys_caps["size"] >= 20)
+        & (sys_caps["size"] >= A2_MIN_STATIONS)
     ])
-    out["flag_A2"] = out["system_id"].isin(a2)
+    return out["system_id"].isin(flagged)
+
+
+def _flag_a4(out: pd.DataFrame, projected: np.ndarray) -> np.ndarray:
+    """A4 : geospatial outliers (robust 3-sigma per system centroid).
+
+    Implemented with a MAD-based robust scale so the outliers themselves
+    do not inflate the dispersion estimate. A floor of
+    ``A4_MIN_THRESHOLD_M`` protects systems whose stations legitimately
+    cluster within a single street.
+    """
+    n = len(out)
+    flag = np.zeros(n, dtype=bool)
+    if n == 0:
+        return flag
+    sys_codes, _ = pd.factorize(out["system_id"].values)
+    for code in np.unique(sys_codes):
+        idx = np.where(sys_codes == code)[0]
+        if len(idx) < A4_MIN_STATIONS:
+            continue
+        pts = projected[idx]
+        if not np.all(np.isfinite(pts)):
+            finite = np.isfinite(pts).all(axis=1)
+            if finite.sum() < A4_MIN_STATIONS:
+                continue
+            idx_f = idx[finite]
+            pts = pts[finite]
+        else:
+            idx_f = idx
+        centroid = np.median(pts, axis=0)
+        radii = np.sqrt(((pts - centroid) ** 2).sum(axis=1))
+        radii_median = np.median(radii)
+        mad = np.median(np.abs(radii - radii_median))
+        sigma_robust = 1.4826 * mad
+        if sigma_robust <= 0.0:
+            continue  # degenerate: all stations coincide
+        # Outlier if the row's radius exceeds the system's typical radius
+        # by more than ``A4_SIGMA`` robust standard deviations. A 1 km
+        # floor prevents flagging tightly clustered systems whose normal
+        # spread is sub-kilometre.
+        threshold = max(radii_median + A4_SIGMA * sigma_robust, A4_MIN_THRESHOLD_M)
+        flag[idx_f[radii > threshold]] = True
+    return flag
+
+
+def _flag_a5(out: pd.DataFrame, projected: np.ndarray) -> np.ndarray:
+    """A5 : out-of-perimeter coverage (system bounding box > threshold).
+
+    The "out-of-jurisdiction" half of the paper's A5 signature requires
+    an administrative polygon (IGN BD TOPO) that is not bundled with
+    this minimal package ; downstream pipelines that have access to a
+    jurisdiction layer can OR the resulting mask with this function's
+    output.
+    """
+    n = len(out)
+    flag = np.zeros(n, dtype=bool)
+    if n == 0:
+        return flag
+    sys_codes, _ = pd.factorize(out["system_id"].values)
+    for code in np.unique(sys_codes):
+        idx = np.where(sys_codes == code)[0]
+        if len(idx) < 2:
+            continue
+        pts = projected[idx]
+        if not np.isfinite(pts).all():
+            pts = pts[np.isfinite(pts).all(axis=1)]
+            if len(pts) < 2:
+                continue
+        width_m = pts[:, 0].max() - pts[:, 0].min()
+        height_m = pts[:, 1].max() - pts[:, 1].min()
+        area_km2 = (width_m * height_m) / 1e6
+        if area_km2 > A5_BBOX_MAX_KM2:
+            flag[idx] = True
+    return flag
+
+
+def _flag_a6(out: pd.DataFrame) -> pd.Series:
+    """A6 : ≥1% of docked-bike stations declare capacity = 0."""
+    is_zero_dock = (out["capacity"].fillna(-1) == 0) & (
+        out["station_type"] == "docked_bike"
+    )
+    sys_rate = is_zero_dock.groupby(out["system_id"]).mean()
+    sys_size = out.groupby("system_id").size()
+    flagged = set(sys_rate.index[
+        (sys_rate >= A6_RATE_THRESHOLD) & (sys_size >= A6_MIN_STATIONS)
+    ])
+    return out["system_id"].isin(flagged)
+
+
+def _flag_a7(out: pd.DataFrame) -> pd.Series:
+    """A7 : ≥50% of a system's stations declare capacity = NaN."""
+    is_nan = out["capacity"].isna()
+    sys_rate = is_nan.groupby(out["system_id"]).mean()
+    sys_size = out.groupby("system_id").size()
+    flagged = set(sys_rate.index[
+        (sys_rate >= A7_RATE_THRESHOLD) & (sys_size >= A7_MIN_STATIONS)
+    ])
+    return out["system_id"].isin(flagged)
+
+
+def _audit_confidence(row: pd.Series) -> str:
+    flags = [bool(row[f"flag_A{i}"]) for i in range(1, 8)]
+    n = sum(flags)
+    if n == 0:
+        return "high"
+    if n == 1 and (row["flag_A3"] or row["flag_A7"]):
+        return "medium"
+    return "low"
+
+
+def _compute_tier1(
+    df: pd.DataFrame, projected: Optional[np.ndarray] = None
+) -> pd.DataFrame:
+    """Tier-1 audit visibility columns (11 new fields)."""
+    out = df.copy()
+    if projected is None:
+        projected = _project_meters(
+            out["lat"].to_numpy(dtype="float64"),
+            out["lon"].to_numpy(dtype="float64"),
+        )
+
+    out["capacity_raw"] = out["capacity"].astype("Float64")
+    out["capacity_audited"] = (
+        out["capacity"]
+        .where(out["station_type"] == "docked_bike", np.nan)
+        .astype("Float64")
+    )
+
+    out["flag_A1"] = out["station_type"] == "carsharing"
+    out["flag_A2"] = _flag_a2(out)
     out["flag_A3"] = out["station_type"] == "free_floating"
-    out["flag_A4"] = False
-    out["flag_A5"] = False
-    out["flag_A6"] = (
-        (out["capacity"] == 0) & (out["station_type"] == "docked_bike")
-    ).fillna(False)
-    sys_nan = out.groupby("system_id").apply(
-        lambda g: pd.Series({
-            "n_total": len(g),
-            "n_nan": g["capacity"].isna().sum(),
-        }),
-        include_groups=False,
-    )
-    sys_nan["nan_rate"] = sys_nan["n_nan"] / sys_nan["n_total"]
-    a7 = set(sys_nan.index[(sys_nan["nan_rate"] >= 0.5) & (sys_nan["n_total"] >= 20)])
-    out["flag_A7"] = out["system_id"].isin(a7)
+    out["flag_A4"] = _flag_a4(out, projected)
+    out["flag_A5"] = _flag_a5(out, projected)
+    out["flag_A6"] = _flag_a6(out)
+    out["flag_A7"] = _flag_a7(out)
 
-    out["operator_name"] = out.apply(
-        lambda r: detect_operator(r.get("system_id"), r.get("system_name")),
-        axis=1,
-    )
-
-    def _confidence(row) -> str:
-        flags = [row[f"flag_A{i}"] for i in range(1, 8)]
-        n = sum(bool(f) for f in flags)
-        if n == 0:
-            return "high"
-        if n == 1 and (row["flag_A3"] or row["flag_A7"]):
-            return "medium"
-        return "low"
-    out["audit_confidence"] = out.apply(_confidence, axis=1)
+    out["operator_name"] = [
+        detect_operator(sid, sname)
+        for sid, sname in zip(out.get("system_id", []), out.get("system_name", []))
+    ]
+    out["audit_confidence"] = out.apply(_audit_confidence, axis=1)
     return out
 
 
-def _compute_tier2(df: pd.DataFrame) -> pd.DataFrame:
-    """Tier-2 network and density columns (5 new fields)."""
-    out = df.copy()
-    R = 6371000.0
-    lat = np.deg2rad(out["lat"].to_numpy(dtype="float64"))
-    lon = np.deg2rad(out["lon"].to_numpy(dtype="float64"))
-    mean_lat = float(np.nanmean(lat))
-    x = R * lon * np.cos(mean_lat)
-    y = R * lat
-    coords = np.column_stack([x, y])
-    n = len(coords)
+# ---------------------------------------------------------------------------
+# Tier-2 : network geometry (KD-tree based KNN)
+# ---------------------------------------------------------------------------
 
+
+def _compute_tier2(
+    df: pd.DataFrame, projected: Optional[np.ndarray] = None
+) -> pd.DataFrame:
+    """Tier-2 network and density columns (5 new fields).
+
+    Uses ``scipy.spatial.cKDTree`` so the audit runs in O(n log n) on
+    the global catalogue rather than the O(n^2) chunked dense matrix of
+    the v1.0 release.
+    """
+    from scipy.spatial import cKDTree
+
+    out = df.copy()
+    if projected is None:
+        projected = _project_meters(
+            out["lat"].to_numpy(dtype="float64"),
+            out["lon"].to_numpy(dtype="float64"),
+        )
+    n = len(out)
     sys_codes, _ = pd.factorize(out["system_id"].values)
 
     dist_intra = np.full(n, np.nan)
     n500 = np.zeros(n, dtype="int64")
     n1k = np.zeros(n, dtype="int64")
-    for ci in np.unique(sys_codes):
-        idx = np.where(sys_codes == ci)[0]
+    dist_inter = np.full(n, np.nan)
+
+    finite = np.isfinite(projected).all(axis=1)
+
+    for code in np.unique(sys_codes):
+        idx = np.where(sys_codes == code)[0]
+        idx = idx[finite[idx]]
         if len(idx) < 2:
+            n500[idx] = 0
+            n1k[idx] = 0
             continue
-        sub = coords[idx]
-        diff = sub[:, None, :] - sub[None, :, :]
-        d = np.sqrt((diff * diff).sum(axis=2))
-        np.fill_diagonal(d, np.inf)
-        dist_intra[idx] = d.min(axis=1)
-        n500[idx] = (d <= 500.0).sum(axis=1)
-        n1k[idx] = (d <= 1000.0).sum(axis=1)
+        sub = projected[idx]
+        tree = cKDTree(sub)
+        dists, _ = tree.query(sub, k=2)
+        dist_intra[idx] = dists[:, 1]
+        # query_ball_point with return_length includes the self-match;
+        # subtract 1 to count *other* same-system neighbours within R.
+        counts_500 = tree.query_ball_point(sub, 500.0, return_length=True)
+        counts_1k = tree.query_ball_point(sub, 1000.0, return_length=True)
+        n500[idx] = np.asarray(counts_500, dtype="int64") - 1
+        n1k[idx] = np.asarray(counts_1k, dtype="int64") - 1
+
+    # Cross-system nearest neighbour : per system, build a tree of the
+    # complement and query k=1. Constant memory per iteration.
+    if finite.any() and n >= 2:
+        for code in np.unique(sys_codes):
+            idx = np.where(sys_codes == code)[0]
+            idx = idx[finite[idx]]
+            other = np.where((sys_codes != code) & finite)[0]
+            if len(idx) == 0 or len(other) == 0:
+                continue
+            tree = cKDTree(projected[other])
+            d, _ = tree.query(projected[idx], k=1)
+            dist_inter[idx] = d
+
     out["dist_to_nearest_station_m"] = dist_intra
     out["n_stations_within_500m"] = n500
     out["n_stations_within_1km"] = n1k
-
-    dist_inter = np.full(n, np.nan)
-    chunk = 2000
-    for i0 in range(0, n, chunk):
-        i1 = min(i0 + chunk, n)
-        c_coords = coords[i0:i1]
-        c_sys = sys_codes[i0:i1]
-        diff = c_coords[:, None, :] - coords[None, :, :]
-        d = np.sqrt((diff * diff).sum(axis=2))
-        same = c_sys[:, None] == sys_codes[None, :]
-        d = np.where(same, np.inf, d)
-        dist_inter[i0:i1] = d.min(axis=1)
     out["nearest_system_dist_m"] = dist_inter
-    out["catchment_density_per_km2"] = out["n_stations_within_1km"] / (np.pi * 1.0**2)
+    # Disc area of radius 1 km : pi * 1^2 km^2. The column is strictly
+    # proportional to ``n_stations_within_1km`` and is preserved for
+    # interface compatibility with the published parquet.
+    out["catchment_density_per_km2"] = out["n_stations_within_1km"] / np.pi
     return out
 
 
@@ -239,4 +425,8 @@ def enrich(df: pd.DataFrame) -> pd.DataFrame:
     ``lat`` and ``lon``. The output is the input augmented with the
     16 new columns documented in the paper's Table 7.
     """
-    return _compute_tier2(_compute_tier1(df))
+    projected = _project_meters(
+        df["lat"].to_numpy(dtype="float64"),
+        df["lon"].to_numpy(dtype="float64"),
+    )
+    return _compute_tier2(_compute_tier1(df, projected), projected)
