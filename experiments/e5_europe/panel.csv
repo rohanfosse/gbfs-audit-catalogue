@@ -1,0 +1,9 @@
+country,name,auto_discovery_url
+ES,Bicing Barcelona,https://barcelona.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json
+ES,bicimad Madrid,https://madrid.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json
+ES,Bilbao Bizi,https://bilbao.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json
+ES,Bizi Zaragoza,https://zaragoza.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json
+ES,Dbizi Donostia,https://sansebastian.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json
+ES,Sevici,https://api.cyclocity.fr/contracts/seville/gbfs/v3/gbfs.json
+ES,Valenbisi,https://api.cyclocity.fr/contracts/valence/gbfs/v3/gbfs.json
+BE,Velo Antwerpen,https://gbfs.smartbike.com/antwerp/1.0/gbfs.json

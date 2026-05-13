@@ -1,0 +1,9 @@
+name,country,status,n_stations,n_capacity_nan,n_capacity_zero,capacity_median,capacity_unique_values,A1_n_stations,A1_share_pct,A3_n_stations,A3_share_pct,A4_n_stations,A4_share_pct,A2_flagged,A5_flagged,A6_flagged,A7_flagged,url,elapsed_s
+Bicing Barcelona,ES,ok,545,0,2,27.0,39,0,0.0,0,0.0,1,0.18,False,False,False,False,https://barcelona.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json,0.3
+bicimad Madrid,ES,ok,637,0,3,44.0,36,0,0.0,0,0.0,0,0.0,False,False,False,False,https://madrid.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json,0.2
+Bilbao Bizi,ES,ok,48,0,0,826.5,15,0,0.0,0,0.0,0,0.0,False,False,False,False,https://bilbao.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json,0.2
+Bizi Zaragoza,ES,ok,276,0,0,19.0,12,0,0.0,0,0.0,1,0.36,False,False,False,False,https://zaragoza.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json,0.2
+Dbizi Donostia,ES,ok,70,0,0,19.0,15,0,0.0,0,0.0,2,2.86,False,False,False,False,https://sansebastian.publicbikesystem.net/customer/gbfs/v3.0/gbfs.json,0.2
+Sevici,ES,ok,247,0,2,20.0,23,0,0.0,0,0.0,11,4.45,False,True,False,False,https://api.cyclocity.fr/contracts/seville/gbfs/v3/gbfs.json,0.4
+Valenbisi,ES,ok,279,0,2,20.0,24,0,0.0,0,0.0,2,0.72,False,False,False,False,https://api.cyclocity.fr/contracts/valence/gbfs/v3/gbfs.json,0.4
+Velo Antwerpen,BE,ok,321,0,0,36.0,15,0,0.0,0,0.0,0,0.0,False,False,False,False,https://gbfs.smartbike.com/antwerp/1.0/gbfs.json,1.5
