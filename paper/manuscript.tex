@@ -112,8 +112,9 @@ released for bit-exact reproduction.
 \section{Introduction}
 
 For more than a decade, bike-sharing systems have been a structural
-component of urban mobility policy in France and across Europe, advancing
-goals of liveability, decarbonisation and last-kilometre integration. To
+component of urban mobility policy in France and across Europe
+\cite{Pucher2010Infrastructure}, advancing goals of liveability,
+decarbonisation and last-kilometre integration. To
 support inter-operability of the resulting fleets, the General Bikeshare
 Feed Specification (GBFS), introduced by the North American Bikeshare
 Association in 2015 and now maintained by the Open Mobility Foundation,
@@ -165,8 +166,10 @@ Frictionless Data specifications \cite{FrictionlessData2023}.
 The underlying data-quality literature is mature : Wang and Strong
 \cite{Wang1996Quality} established the consumer-centred dimensions,
 Pipino \textit{et al.} \cite{Pipino2002Assessment} the assessment
-procedures, and Naumann \cite{Naumann2014DataProfiling} the modern
-profiling approach. ISO/IEC~25012 \cite{ISO25012} and its companion
+procedures, Khatri and Brown \cite{Khatri2010DataGovernance} the
+governance framing, Sebastian-Coleman \cite{SebastianColeman2013}
+the ongoing-improvement perspective, and Naumann
+\cite{Naumann2014DataProfiling} the modern profiling approach. ISO/IEC~25012 \cite{ISO25012} and its companion
 measurement standard ISO/IEC~25024 \cite{ISO25024} formalise the
 quality dimensions ; for geographic information specifically,
 ISO~19157 \cite{ISO19157} provides the corresponding framework, and
@@ -578,8 +581,8 @@ reports ship alongside the dataset under \texttt{experiments/e5\_europe/}.
 \caption{E5 pilot: applying the A1--A5 rule set to three non-French
 dock-based systems, with French thresholds and country-appropriate
 perimeter only. All three systems pass the audit with zero structural
-anomalies, in contrast to the 22 French systems flagged on the local
-Gold Standard audit of 123 systems (or 38 systems when the audit is
+anomalies, in contrast to the 22 French systems flagged on the
+123-system Audit Catalogue corpus (or 38 systems when the audit is
 applied to the 255 French entries of the MobilityData catalogue, see
 Table~\ref{tab:global-audit}). \emph{Ratio} is $\bar c_{\text{profile}} / \bar c_{\text{actual}}$
 from Eq.~\ref{eq:a3-bias}: a value $\approx 1$ is the dock-based
@@ -824,7 +827,10 @@ Voi          & 4  &  2{,}816 & 5--10 & Small fleet-profile estimator \\
 
 \subsection{Implications}
 The audit is intended as a scientific validation tier between GBFS
-publication and academic use. Three concrete avenues would
+publication and academic use, addressing the gap between regulatory
+publication and research-grade reuse that the open-government-data
+literature identifies as a recurrent adoption barrier
+\cite{Janssen2012OpenData}. Three concrete avenues would
 institutionalise it: a jointly published \emph{GBFS Audit Best
 Practices Handbook} by francophone micromobility laboratories to
 align practices currently rebuilt in isolation; a working group
@@ -1041,7 +1047,7 @@ $\mathcal{G} \gets \emptyset$; $\mathcal{R} \gets \emptyset$\;
     Update $\mathcal{G}, \mathcal{R}$ accordingly\;
 }
 \Return $(\mathcal{G}, \mathcal{R}, \text{audit report}, \text{metadata})$\;
-\caption{GBFS-to-Gold-Standard purging pipeline.}
+\caption{GBFS raw-to-Audit-Catalogue purging pipeline.}
 \label{alg:purge}
 \end{algorithm}
 
@@ -1464,23 +1470,32 @@ The 142 candidate French GBFS feeds inventoried from
 \emph{transport.data.gouv.fr} and MobilityData are archived with
 SHA-256 hashes in the same deposit ; the certified subset of 123
 systems is derived deterministically from them.
-\item \textbf{Global audit table (GitHub, MIT licence).} The full
-per-system result of the 1{,}509-system MobilityData-catalogue audit
-is shipped as \texttt{papers/01\_gold\_standard/experiments/e5\_europe/}\linebreak
-\texttt{massive\_audit\_results.csv} (and aggregated as
-\texttt{massive\_audit\_summary.json}) in the GitHub repository
-\url{https://github.com/rohanfosse/bikeshare-data-explorer}. These
-outputs are not in the Zenodo deposit because the upstream
-catalogue evolves; the audit is therefore versioned as code rather
-than as data. A re-run on the latest catalogue is one command:
-\texttt{python papers/01\_gold\_standard/experiments/e5\_europe/}\linebreak
-\texttt{massive\_audit.py}.
-\item \textbf{Source code (MIT).} Audit pipeline at
-\url{https://github.com/rohanfosse/bikeshare-data-explorer}, with a
+\item \textbf{Source code (MIT licence).} The audit pipeline
+(\texttt{audit\_pipeline} Python package, six-step purging
+protocol, hybridisation joins, FAIR exporters) is released at
+\url{https://github.com/rohanfosse/gbfs-audit-catalogue},
+together with the manuscript source, the companion Jupyter
+notebook (\texttt{notebooks/catalogue\_recipes.ipynb}) and a
+focused interactive dashboard (\texttt{app/streamlit\_app.py},
+deployed at \url{https://gbfs-audit.streamlit.app}). A
 \texttt{CITATION.cff} file and a Docker image
-(\texttt{ghcr.io/rohanfosse/gold-standard:1.0.0}) for bit-exact
-French reproduction. Releases are mirrored to Zenodo via the
+(\texttt{ghcr.io/rohanfosse/gbfs-audit:1.0.0}) are provided for
+bit-exact reproduction. Releases are mirrored to Zenodo via the
 GitHub--Zenodo integration.
+\item \textbf{Hugging Face mirror.} The released parquet is
+mirrored as a Hugging Face dataset at
+\url{https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue}
+for one-line access via
+\texttt{datasets.load\_dataset()}.
+\item \textbf{Global audit reproduction.} The full per-system
+result of the 1{,}509-system MobilityData-catalogue audit is
+versioned as code rather than as data, because the upstream
+catalogue evolves. A re-run is one command:
+\texttt{python -m audit\_pipeline.global\_audit} from the source
+repository. The output (\texttt{massive\_audit\_results.csv} and
+\texttt{massive\_audit\_summary.json}) is regenerated on every
+release and archived as a Zenodo asset attached to the corresponding
+tag.
 \item \textbf{Additional resources.} The 500-station blinded sample
 used in the internal robustness checks, the orthogonal- and full-task
 classifier scripts, the $\sigma_{\max}$ sensitivity notebook, and the
