@@ -1,38 +1,45 @@
 # GBFS Audit Catalogue
 
-A reproducible audit of the 1,509 General Bikeshare Feed Specification (GBFS) systems published by municipal bike-sharing operators across 48 countries, together with the resulting 46-column reference dataset for 46,307 certified stations in France.
+> A certified, anomaly-flagged reference dataset for the 46,307 bike-sharing
+> stations published under the French Mobility Orientation Law, together with
+> the open-source audit pipeline that produced it.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20125460.svg)](https://doi.org/10.5281/zenodo.20125460)
+[![tests](https://github.com/rohanfosse/gbfs-audit-catalogue/actions/workflows/tests.yml/badge.svg)](https://github.com/rohanfosse/gbfs-audit-catalogue/actions/workflows/tests.yml)
 [![Hugging Face Datasets](https://img.shields.io/badge/Hugging%20Face-Datasets-yellow)](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue)
 [![Streamlit demo](https://img.shields.io/badge/Streamlit-Live%20demo-red)](https://gbfs-audit.streamlit.app)
 [![Project page](https://img.shields.io/badge/GitHub%20Pages-Project%20page-lightgrey)](https://rohanfosse.github.io/gbfs-audit-catalogue)
-[![tests](https://github.com/rohanfosse/gbfs-audit-catalogue/actions/workflows/tests.yml/badge.svg)](https://github.com/rohanfosse/gbfs-audit-catalogue/actions/workflows/tests.yml)
 [![Data licence: ODbL v1.0](https://img.shields.io/badge/data-ODbL%20v1.0-blue)](LICENSE-DATA)
 [![Code licence: MIT](https://img.shields.io/badge/code-MIT-green)](LICENSE)
 
-## Overview
+![Visual abstract: audit of 1,509 GBFS systems, unified A1-A7 taxonomy, certified 46k-station catalogue.](paper/figures/fig00_visual_abstract.png)
 
-The 2019 French Mobility Orientation Law (LOM, article L.1115-1) makes
-the publication of GBFS feeds on `transport.data.gouv.fr` a regulatory
-requirement for bike-sharing operators. The standard guarantees
-syntactic interoperability across systems but does not enforce semantic
-consistency: identical fields, for instance the
-`station_information.capacity` integer, carry mutually incompatible
-operational meanings across operators (a physical dock count for
-dock-based fleets, a conditional-averaging estimator for free-floating
-fleets, an arbitrary placeholder for under-reporting operators, or a
-null value on operators that do not populate the field).
+## What this is
 
-The audit reported in the companion paper, applied to the 1,509 GBFS
-systems catalogued worldwide by MobilityData, exposes seven recurring
-anomaly classes (A1 to A7) that together reclassify 30.9 % of the raw
-French stations and flag 215 systems globally that a purely syntactic
-validator would not detect.
+The General Bikeshare Feed Specification (GBFS) guarantees that bike-sharing
+operators publish data in a consistent **syntax**. It does *not* guarantee
+that the data is **semantically** consistent across operators — the
+`station_information.capacity` integer alone carries six mutually
+incompatible meanings in the French corpus (physical dock count,
+free-floating fleet average, placeholder constant, NaN, etc.).
 
-This repository is the open release of the audit pipeline, the
-certified dataset, the companion notebook with eight reproducible
-recipes, the manuscript LaTeX source, and the focused Streamlit
-dashboard.
+This repository releases:
+
+- **Data** — a 46-column Parquet of 46,307 audited stations across 97 French
+  cities, with per-row anomaly flags (`flag_A1` … `flag_A7`), audited
+  capacities, network-geometry features and contextual enrichment from
+  INSEE, IGN, ONISR and the national GTFS aggregator.
+- **Code** — `audit_pipeline`, a small Python package that re-runs the
+  Tier-1 audit (seven anomaly classes) and Tier-2 KD-tree network
+  enrichment on any compatible raw GBFS dump.
+- **Reproduction artefacts** — the manuscript LaTeX source, a Jupyter
+  notebook with eight runnable recipes, a Docker image for bit-exact
+  reproduction, a Streamlit dashboard, and a pytest suite that exercises
+  every anomaly detector.
+
+Intended for researchers in transport policy, urban mobility, data
+quality and FAIR open data, as well as operators and regulators who
+need a sanity-checked snapshot of the French bike-sharing landscape.
 
 ## Key figures
 
@@ -42,7 +49,8 @@ dashboard.
 | Systems with at least one A1 to A7 flag | 204 (A1 to A5) + 14 (A6) + 215 (A7) |
 | French GBFS systems audited | 123 |
 | Certified stations released | 46,307 |
-| Dock-based subset (fully audited) | 5,442 |
+| Dock-based stations (all) | 5,442 |
+| Dock-based stations (high audit confidence) | 5,402 |
 | Cities covered | 97 |
 | Raw stations reclassified | 30.9 % (95 % bootstrap CI [30.5, 31.3]) |
 | Columns in the released schema | 46 typed columns |
@@ -78,10 +86,13 @@ summary = load_summary()     # one row per audited system
 ### Inspect the audit at the row level
 
 ```python
-clean = gs[(gs.station_type == "docked_bike")
-           & (gs.audit_confidence == "high")]
-print(len(clean))           # 5,402
+# All dock-based stations: 5,442
+docked = gs[gs.station_type == "docked_bike"]
 
+# Same, restricted to systems the audit is confident about: 5,402
+clean = docked[docked.audit_confidence == "high"]
+
+# Per-operator anomaly rates
 gs.groupby("operator_name").agg(
     n=("uid", "size"),
     A3_rate=("flag_A3", "mean"),
@@ -90,7 +101,10 @@ gs.groupby("operator_name").agg(
 ```
 
 A self-contained companion notebook with eight recipes is provided at
-[`notebooks/catalogue_recipes.ipynb`](notebooks/catalogue_recipes.ipynb).
+[`notebooks/catalogue_recipes.ipynb`](notebooks/catalogue_recipes.ipynb)
+(loading, anomaly filtering, INSEE join, dock-density mapping,
+Bordeaux before/after, soft-mobility ranking, capacity-semantics audit
+and cross-country comparison).
 
 ## Repository layout
 
@@ -98,11 +112,13 @@ A self-contained companion notebook with eight recipes is provided at
 gbfs-audit-catalogue/
 ├── catalogue/           Certified parquet and per-system summary CSV
 ├── audit_pipeline/      Standalone Python package (load + enrich API)
+├── tests/               pytest suite (24 tests, 85% coverage)
 ├── notebooks/           Companion notebook with 8 reproducible recipes
 ├── paper/               Manuscript LaTeX, figures, BibTeX (CSI submission)
 ├── app/                 Focused Streamlit dashboard (4 tabs)
 ├── docs/                GitHub Pages project page sources
 ├── huggingface/         Dataset card and Hub publication instructions
+├── .github/workflows/   Continuous integration (pytest on 3.10/3.11/3.12)
 ├── requirements.txt     Runtime dependencies
 ├── Dockerfile           Bit-exact reproduction environment
 ├── pyproject.toml       Python package metadata
@@ -128,23 +144,32 @@ global MobilityData catalogue.
 
 ## Schema (46 columns)
 
-Five identifiers, five spatial and administrative fields, four station
-descriptors, eleven audit-pipeline outputs (the `station_type` enum,
-the `capacity_raw` / `capacity_audited` pair, the seven `flag_Ai`
-booleans, the normalised `operator_name` and the `audit_confidence`
-ordinal), five network-geometry fields (intra- and inter-system KNN
-distances and densities), and the contextual enrichment derived from
-INSEE Filosofi, INSEE Recensement, ONISR BAAC, IGN BD ALTI, IGN BD
-TOPO, the national GTFS aggregator and the FUB Cycling Barometer.
+The full machine-readable schema (JSON Schema, DCAT-AP record,
+Frictionless Data Package descriptor and Croissant JSON-LD manifest)
+ships with the Zenodo deposit. The summary below groups the 46 columns
+by purpose and source.
 
-The eleven audit-pipeline outputs are the novel contribution at the row
-level. They expose the audit's verdict per station, so that downstream
-consumers can filter by class, by operator or by confidence without
-re-running the pipeline. Every column carries a stable name, a declared
-dtype, a source pointer and a measured completeness rate. The
-machine-readable schema (JSON Schema, DCAT-AP record, Frictionless
-Data Package descriptor and Croissant JSON-LD manifest) accompanies
-the dataset on Zenodo.
+| Group | Columns | Source |
+| --- | --- | --- |
+| Identifiers (5) | `uid`, `station_id`, `system_id`, `system_name`, `source` | GBFS |
+| Spatial (5) | `lat`, `lon`, `city`, `commune_name`, `code_commune`, `region_id` | GBFS + INSEE COG |
+| Station description (4) | `station_name`, `address`, `capacity`, `n_stations_system` | GBFS |
+| **Audit pipeline (11)** | `station_type`, `capacity_raw`, `capacity_audited`, `flag_A1`–`flag_A7`, `operator_name`, `audit_confidence`, `fetched_at` | This work |
+| **Network geometry (5)** | `dist_to_nearest_station_m`, `n_stations_within_500m`, `n_stations_within_1km`, `nearest_system_dist_m`, `catchment_density_per_km2` | KNN on this work |
+| Topography (2) | `elevation_m`, `topography_roughness_index` | IGN BD ALTI |
+| Cycling infrastructure (2) | `infra_cyclable_km`, `infra_cyclable_pct` | IGN BD TOPO, 300 m buffer |
+| Safety (1) | `baac_accidents_cyclistes` | ONISR BAAC, 500 m radius, 5 yr |
+| Multimodal access (2) | `gtfs_heavy_stops_300m`, `gtfs_stops_within_300m_pct` | National GTFS aggregator |
+| Socio-economy (5) | `revenu_median_uc`, `gini_revenu`, `revenu_d1`, `ecart_interquar`, `part_menages_voit0` | INSEE Filosofi |
+| Modal share (1) | `part_velo_travail` | INSEE Recensement |
+
+The 16 columns in bold are the audit-pipeline contribution at the row
+level: every station carries its verdict per class, its operator
+attribution, its audit confidence and its network-geometry context, so
+downstream consumers can filter without rerunning the pipeline. Every
+column has a stable name, a declared dtype, a source pointer and a
+measured completeness rate (see the dataset card on Hugging Face for
+the full table).
 
 ## Reproduction
 
@@ -171,12 +196,36 @@ docker run --rm gbfs-audit:1.0 \
 streamlit run app/streamlit_app.py
 ```
 
-The dashboard is deployed publicly at
+The dashboard is also deployed publicly at
 [gbfs-audit.streamlit.app](https://gbfs-audit.streamlit.app).
+
+### Development and tests
+
+```bash
+pip install -e ".[test]"
+pytest                              # 24 tests, ~1 s
+pytest --cov=audit_pipeline         # with coverage (currently 85 %)
+```
+
+The suite exercises each of the seven anomaly classes on dedicated
+synthetic fixtures, plus the end-to-end `enrich()` pipeline and the
+operator-normalisation lookup. It runs on every push to `main` and on
+every pull request via the GitHub Actions workflow at
+[`.github/workflows/tests.yml`](.github/workflows/tests.yml) on
+Python 3.10, 3.11 and 3.12.
+
+## Manuscript and Overleaf
+
+The Computer Standards & Interfaces manuscript LaTeX source lives
+under [`paper/`](paper/). A dedicated `overleaf-paper` branch ships
+the same files flat at the branch root, which is the layout Overleaf
+expects. See [`paper/OVERLEAF.md`](paper/OVERLEAF.md) for the linking
+instructions and [`paper/sync_overleaf.sh`](paper/sync_overleaf.sh)
+for the helper script that refreshes the side branch after edits.
 
 ## Citation
 
-Please cite both the journal paper and the Zenodo deposit when reusing
+Please cite both the manuscript and the Zenodo deposit when reusing
 the catalogue.
 
 ```bibtex
@@ -186,7 +235,7 @@ the catalogue.
              A reproducible anomaly taxonomy for open mobility data},
   journal = {Computer Standards \& Interfaces},
   year    = {2026},
-  note    = {Under review}
+  note    = {Manuscript under peer review; preprint forthcoming}
 }
 
 @dataset{Fosse2026gbfsdata,
@@ -198,26 +247,17 @@ the catalogue.
 }
 ```
 
-A `CITATION.cff` file is also provided at the repository root for
-GitHub's automatic citation tooling.
+A [`CITATION.cff`](CITATION.cff) file is also provided at the
+repository root for GitHub's automatic citation tooling.
 
 ## Licences
 
-Code (the `audit_pipeline`, `app`, `notebooks` and `paper` directories)
-is released under the MIT licence. Data (the contents of `catalogue/`,
-the Zenodo deposit and the Hugging Face dataset mirror) is released
-under the Open Data Commons Open Database License (ODbL) v1.0.
-Upstream attributions for the data sources used in the contextual
-enrichment are listed in [`LICENSE-DATA`](LICENSE-DATA).
-
-## Manuscript and Overleaf
-
-The CSI manuscript LaTeX source lives under [`paper/`](paper/).
-A dedicated `overleaf-paper` branch ships the same files flat at the
-branch root, which is the layout Overleaf expects. See
-[`paper/OVERLEAF.md`](paper/OVERLEAF.md) for the linking instructions
-and [`paper/sync_overleaf.sh`](paper/sync_overleaf.sh) for the helper
-script that refreshes the side branch after edits.
+Code (the `audit_pipeline`, `app`, `notebooks`, `tests` and `paper`
+directories) is released under the MIT licence. Data (the contents of
+`catalogue/`, the Zenodo deposit and the Hugging Face dataset mirror)
+is released under the Open Data Commons Open Database License (ODbL)
+v1.0. Upstream attributions for the data sources used in the
+contextual enrichment are listed in [`LICENSE-DATA`](LICENSE-DATA).
 
 ## Contact
 
@@ -228,9 +268,9 @@ script that refreshes the side branch after edits.
 Issues and contributions are welcome at
 [github.com/rohanfosse/gbfs-audit-catalogue/issues](https://github.com/rohanfosse/gbfs-audit-catalogue/issues).
 
-This repository is the focused publication of one paper in a larger
-research programme on French micromobility data quality. The broader
-programme (the Soft Mobility Index IMD, the social-equity index IES,
-the urban-scale extensions of the Bayesian station-level monitor)
-lives at
-[github.com/rohanfosse/bikeshare-data-explorer](https://github.com/rohanfosse/bikeshare-data-explorer).
+## See also
+
+[`bikeshare-data-explorer`](https://github.com/rohanfosse/bikeshare-data-explorer)
+hosts the wider research programme this paper belongs to, including
+the Soft Mobility Index (IMD), the social-equity index (IES) and the
+Bayesian urban-scale station-level monitor.
