@@ -36,8 +36,14 @@ dependencies = [
 app = ["streamlit>=1.35.0"]
 notebook = ["jupyter>=1.0.0", "ipykernel>=6.25.0"]
 hub = ["datasets>=4.0.0", "huggingface_hub[cli]>=1.0.0"]
+test = ["pytest>=7.4.0", "pytest-cov>=4.1.0"]
 all = ["streamlit>=1.35.0", "jupyter>=1.0.0", "ipykernel>=6.25.0",
-       "datasets>=4.0.0", "huggingface_hub[cli]>=1.0.0"]
+       "datasets>=4.0.0", "huggingface_hub[cli]>=1.0.0",
+       "pytest>=7.4.0", "pytest-cov>=4.1.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
 
 [project.urls]
 Homepage = "https://gbfs-audit.streamlit.app"
