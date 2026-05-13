@@ -87,8 +87,9 @@ bootstrap CI [30.5, 31.3]); across the global catalogue it flags
 operator illustrates the policy stake : 17 systems publish
 capacity~=~NaN on every station and would be ``clean'' under any
 v1.0 syntactic validator, yet collectively hide the most populous
-single-operator capacity blackout in the audited catalogue. We formalise a six-step idempotent
-purging protocol and release the resulting \emph{GBFS Audit
+single-operator capacity blackout in the audited catalogue. We formalise a nine-step idempotent
+purging protocol that operationalises all seven anomaly classes and
+release the resulting \emph{GBFS Audit
 Catalogue} (46{,}307 stations, 97 cities) on Zenodo. The Czech Republic is the European
 hotspot (55.6\,\% of audited systems flagged, all from a single
 operator, mirroring \emph{Pony} in France). A positive control on
@@ -101,8 +102,8 @@ released for bit-exact reproduction.
 \begin{highlights}
 \item Audit of 1{,}509 GBFS systems worldwide; unified taxonomy of 7 anomaly classes
 \item Hotspots are operator-driven: nextbike (Czechia), Pony (France)
-\item Single GBFS capacity field carries 6 incompatible semantics in the FR corpus
-\item 30.9\,\% of raw FR stations reclassified after the six-step purging protocol
+\item Single GBFS capacity field carries 4 incompatible semantics across 6 FR operators
+\item 30.9\,\% of raw FR stations removed after the nine-step purging protocol; further 61\,\% relabelled
 \item Audit Catalogue (46k stations) FAIR-released, code and Docker reproducible
 \end{highlights}
 
@@ -136,9 +137,11 @@ estimator obtained by conditional averaging on free-floating fleets, and
 arbitrary placeholders for under-reporting operators. Second, fourteen
 \emph{Citiz} car-sharing systems are listed on the national portal under
 the GBFS schema, blurring the very definition of the object of study.
-Third, $3.8\,\%$ of the raw stations (95\,\% bootstrap CI [3.4, 4.2],
-$n = 10{,}000$ resamples) exhibit transposed coordinates, fall outside
-the national perimeter, or generate continental-scale bounding boxes.
+Third, approximately $3.6\,\%$ of the certified stations are flagged
+by A4 as 3-$\sigma$ geospatial outliers from their system centroid,
+and four additional systems publish bounding boxes exceeding the
+50{,}000\,km$^2$ A5 threshold or list stations outside the national
+perimeter.
 Taken together, these observations support a single methodological
 claim: syntactic standardisation of an open feed is not sufficient to
 turn it into a research artefact, and any quantitative use of GBFS data
@@ -181,22 +184,30 @@ specifically, and none produces a versioned, audited reference
 dataset at the scale of a country. The present paper fills that gap
 for the French case and extends to the global GBFS catalogue.
 
-The contributions are fourfold. First, an empirically-grounded
+The contributions are fivefold. First, an empirically-grounded
 \textbf{taxonomy} of seven anomaly classes (A1--A7) derived
 jointly from the audit of the 123 French GBFS systems and the
 1{,}509-system MobilityData catalogue, and stress-tested on
 three non-French dock-based systems (Bicing Barcelona, Oslo
 Bysykkel, Bergen Bysykkel) which all pass the audit with zero
 anomalies under unchanged thresholds. Second, a
-six-step \textbf{purging protocol} whose every transformation is
-logged, reproducible and reversible. Third, the \textbf{Audit Catalogue
-GBFS France} data product (46{,}307 certified stations, 97 cities),
-released as a versioned Parquet file with DOI
-\texttt{10.5281/zenodo.20125460} under ODbL, accompanied by its JSON
-Schema, Croissant manifest and audit report. Fourth, a
-\textbf{validation roadmap} of six falsifiable experiments, four of
-which already include a completed pilot, so that the protocol can be
-challenged in public rather than defended in private. Section~\ref{secResults} reports the empirical results,
+nine-step \textbf{purging protocol} (Algorithm~\ref{alg:purge})
+whose every transformation is logged, reproducible and reversible,
+and which jointly operationalises the seven classes.
+Third, the \textbf{Audit Catalogue GBFS France} data product
+(46{,}307 certified stations, 97 cities), released as a versioned
+Parquet file with DOI \texttt{10.5281/zenodo.20125460} under
+ODbL, accompanied by its JSON Schema, Croissant manifest and audit
+report, and mirrored as a Hugging Face dataset.
+Fourth, an \textbf{open-source pipeline} (\texttt{audit\_pipeline}
+Python package, MIT, $\sim 560$ LOC, unit-tested) and a
+five-tab \textbf{interactive dashboard}
+(\url{https://gbfs-audit.streamlit.app}) that surfaces every
+audit verdict at the row level.
+Fifth, a \textbf{validation roadmap} of six falsifiable experiments,
+four of which already include a completed pilot, so that the
+protocol can be challenged in public rather than defended in
+private. Section~\ref{secResults} reports the empirical results,
 Section~\ref{secDiscussion} discusses implications and limitations, and
 Section~\ref{secMethods} details the experimental procedures.
 
@@ -214,23 +225,30 @@ addresses them is given in Section~\ref{secMethods}.
 \begin{table}[ht]
 \centering
 \caption{The seven GBFS anomaly classes (A1--A7) of the unified
-taxonomy, with their observed incidence on the French (FR) and the
-global non-French (Global) corpora. Each class is formalised in
-Methods (Section~\ref{secMethods}). Incidence is at the system
-level except where noted.}
+taxonomy, with their observed incidence on the released French
+catalogue (FR, 123 audited systems) and on the global MobilityData
+catalogue (Global, 1{,}509 systems across 48 countries). Each class
+is formalised in Methods (Section~\ref{secMethods}); per-system
+counts use the operational definitions documented in
+Section~\ref{secMethods} (\eg A3 flags any system with at least one
+\texttt{free\_floating} entry after the S3 reclassification, which
+captures both natively-declared and post-audit-reclassified
+free-floating fleets). Counts are reproducible by re-running
+\texttt{python -m audit\_pipeline.regenerate} on the released
+parquet.}
 \label{tab:anomalies}
 \small
 \begin{tabular}{@{}lllrr@{}}
 \toprule
 \textbf{Class} & \textbf{Name} & \textbf{Signature} & \textbf{FR} & \textbf{Global}\\
 \midrule
-A1 & Out-of-domain inclusion       & Car-sharing advertised as BSS                  & 14         & 29        \\
-A2 & Placeholder capacity          & Constant non-zero $c_i$, \eg $c = 100$         &  3         & 34        \\
-A3 & Structural over-capacity      & Conditional averaging on free-floating         &  8         & 29        \\
-A4 & Geospatial error              & Transposed coords; $>3\sigma$ outliers; OOA    & $\sim$3.8\,\% stns & 78 systems\\
-A5 & Out of perimeter              & System area $>50{,}000$\,km$^2$; overseas      &  5         & 17        \\
-A6 & Zero-capacity dock             & $\geq 1\,\%$ of stations declare $c = 0$       &  0         & 14        \\
-A7 & Null capacity field            & $\geq 50\,\%$ of stations declare $c = $ \texttt{NaN} & 19 (FF) & 215 \\
+A1 & Out-of-domain inclusion       & Car-sharing advertised as BSS                          & 17         & 46        \\
+A2 & Placeholder capacity          & Constant non-zero $c_i$ across docked subset           &  1         & 48        \\
+A3 & Structural over-capacity      & Conditional averaging on free-floating                 & 41         & 33        \\
+A4 & Geospatial error              & 3-$\sigma$ outlier from system centroid                & 78 (3.6\,\% stns) & 81 \\
+A5 & Out of perimeter              & System bounding box $>50{,}000$\,km$^2$                &  4         & 17        \\
+A6 & Zero-capacity dock            & $\geq 1\,\%$ of docked stations declare $c = 0$        &  0         & 14        \\
+A7 & Null capacity field           & $\geq 50\,\%$ of stations declare $c = $ \texttt{NaN}  & 32 (FF)    & 215       \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -285,11 +303,24 @@ physically interpretable capacity (median = 20).}
 
 \subsection{Cumulative effect on the national corpus}
 Table~\ref{tab:overview} summarises the cumulative effect of the
-purging protocol. Across the country, 20{,}693 stations, precisely
-$30.9\,\%$ of the raw corpus (95\,\% bootstrap CI [30.5, 31.3],
-$n = 10{,}000$ resamples on systems), are reassigned, removed or
-reclassified. This is itself a strong empirical argument against the
-view that the standard alone delivers a research-ready dataset.
+purging protocol. From 67{,}000 raw \texttt{station\_information}
+entries published by the 142 inventoried French GBFS feeds,
+20{,}693 ($30.9\,\%$) are removed from the catalogue as falling
+outside the certification criteria (excluded micro-networks below
+$N_{\min}$, technical-ingestion failures, perimeter and outlier
+filters); the remaining 46{,}307 stations are kept in the catalogue
+with an explicit \texttt{station\_type} and per-row anomaly flags,
+of which a further 40{,}865 ($61.0\,\%$ of the raw) are
+\emph{relabelled} away from their declared GBFS type (39{,}235
+relabelled to \texttt{free\_floating} by step S3, 1{,}630 to
+\texttt{carsharing} by step S1). A 95\,\% bootstrap interval on
+the removal rate is reported in the audit report ; we omit it from
+the main text because resampling at the system level (123 clusters)
+under-represents within-system correlation. The headline figure is
+that fewer than 9\,\% of raw entries survive into the catalogue
+without either being relabelled or removed --- a strong empirical
+argument against the view that the standard alone delivers a
+research-ready dataset.
 
 \begin{table}[ht]
 \centering
@@ -332,7 +363,7 @@ smaller dock-based stock after the A3 correction is applied.
 \centering
 \includegraphics[width=0.7\linewidth]{fig03_region_stations.pdf}
 \caption{Certified stations by administrative region, after the
-six-step purging protocol. Annotations report the number of GBFS
+nine-step purging protocol. Annotations report the number of GBFS
 systems per region. \^Ile-de-France concentrates V\'elib';
 Nouvelle-Aquitaine aggregates many systems but holds a smaller
 mass of dock-based stations once free-floating fleets have been
@@ -536,12 +567,20 @@ priority of the validation roadmap.
 
 \emph{Orthogonal-coverage.}
 Three rule-based classifiers, each restricted to one signal source
-(name, capacity, geospatial), have pairwise Cohen's $\kappa$ near
-zero on a stratified 500-station sample (Fleiss $\kappa = -0.07$),
-which is the expected signature of complementary coverage: their
-union reaches $97.2\,\%$ recall at $91.5\,\%$ precision against the
-integrated pipeline, with only 7 of 500 stations flagged by all
-three. A1--A5 cannot be reduced to a single heuristic.
+(name, capacity, geospatial), agree on a stratified 500-station
+sample (stratified on \texttt{station\_type} and operator,
+proportional allocation) at essentially chance level
+(pairwise Cohen's $\kappa$ near zero ; Fleiss
+$\kappa = -0.07$, indistinguishable from independence). We do
+\emph{not} interpret near-zero $\kappa$ as a positive measure of
+``coverage'' --- inter-rater agreement is not a coverage statistic ;
+we report it only to falsify the alternative hypothesis that the
+three sources catch the same anomalies through correlated rules.
+The actually-relevant evidence is union recall: the three
+classifiers together reach $97.2\,\%$ recall at $91.5\,\%$
+precision against the integrated pipeline, with only 7 of 500
+stations flagged by all three. A1--A5 cannot be reduced to a
+single heuristic.
 
 \emph{Full-task agreement.}
 Three decision-tree classifiers seeing all signals but applying them
@@ -573,8 +612,10 @@ only the national perimeter
 (latitude/longitude bounds). All other thresholds ($\sigma_{\max} = 3$,
 $N_{\min} = 20$, A2 placeholder rule, A3 capacity-profile ratio
 threshold of 5.0) were kept at their French values. Results are
-reported in Table~\ref{tab:e5-pilot}; the full scripts and JSON audit
-reports ship alongside the dataset under \texttt{experiments/e5\_europe/}.
+reported in Table~\ref{tab:e5-pilot}; the full scripts and JSON
+audit reports for E5 will be packaged under
+\texttt{experiments/e5\_europe/} of the source repository alongside
+the camera-ready release of this manuscript.
 
 \begin{table}[ht]
 \centering
@@ -806,17 +847,24 @@ Germany are still labelled as bike-sharing on national portals).
 Across the case studies above, a recurring mechanism explains why
 the same anomaly recurs across operators: the GBFS field
 \texttt{station\_information.capacity} is populated by French
-free-floating operators according to six mutually incompatible
-semantics (Table~\ref{tab:capacity-semantics}), aggregating to
+free-floating operators according to four mutually incompatible
+publication conventions, observed across six operator--city
+combinations (Table~\ref{tab:capacity-semantics}), aggregating to
 \textbf{84.7\,\% of the certified French rows}. A downstream
-consumer who applies a single arithmetic to the field aggregates
-six different quantities. The corresponding operator-level pattern
-is global: Beryl London (UK) provides a positive control by leaving
-\texttt{station\_information} empty for its free-floating fleet
-(the canonical GBFS v3 pattern), while the official MobilityData
-GBFS Validator \cite{MobilityData2024Validator} returns no error
-on any of the flagged French systems (0\,\% recall on A3 in
-Table~\ref{tab:baselines}).
+consumer who applies a single arithmetic to the field therefore
+aggregates four physically distinct quantities (NaN, constant
+placeholder, per-vehicle ratio, conditional fleet profile),
+silently mixed across six operator deployments. The corresponding operator-level pattern
+is global: Beryl London (UK) provides a positive control by
+publishing an empty \texttt{station\_information} document for its
+free-floating fleet (zero entries), which is the canonical GBFS v3
+behaviour for non-docked fleets and is therefore not flagged by any
+of A1--A7 (in particular A7 only fires on \emph{populated}
+documents whose entries declare \texttt{capacity = NaN}, which is
+the qualitatively different Dott pattern). The official
+MobilityData GBFS Validator \cite{MobilityData2024Validator}, by
+contrast, returns no error on any of the flagged French systems
+(0\,\% recall on A3 in Table~\ref{tab:baselines}).
 
 \begin{table}[ht]
 \centering
@@ -843,15 +891,16 @@ Voi          & 4  &  2{,}816 & 5--10 & Small fleet-profile estimator \\
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/fig08_capacity_semantics.pdf}
-\caption{Conceptual diagram of the six incompatible semantics of the
-GBFS \texttt{station\_information.capacity} field observed on the
-French free-floating corpus (39{,}235 stations, 84.7\,\% of the
-certified rows). Each card pairs the operator, the publication
-convention applied to the field, the typical reported value, and the
-anomaly class triggered by that convention (A2 placeholder, A3
-over-capacity profile, A7 null capacity). The diagram makes explicit
-why a downstream consumer applying a single arithmetic to
-\texttt{capacity} aggregates six different physical quantities; it
+\caption{Conceptual diagram of the four incompatible publication
+conventions of the GBFS \texttt{station\_information.capacity}
+field observed across six French free-floating operator deployments
+(39{,}235 stations, 84.7\,\% of the certified rows). Each card
+pairs the operator, the convention applied to the field, the
+typical reported value, and the anomaly class triggered by that
+convention (A2 placeholder, A3 over-capacity profile, A7 null
+capacity). The diagram makes explicit why a downstream consumer
+applying a single arithmetic to \texttt{capacity} aggregates four
+physically distinct quantities silently mixed across operators; it
 complements Table~\ref{tab:capacity-semantics} and motivates the
 dual-column \texttt{capacity\_raw}/\texttt{capacity\_audited} schema of
 the released catalogue.}
@@ -993,17 +1042,19 @@ experiment (Table~\ref{tab:roadmap}); four of the six include a
 completed pilot reported in this paper. The remaining priorities are
 the human inter-rater reliability of E1, the full four-dimensional
 threshold sweep of E2, the twelve-month temporal stability of E3,
-and the free-floating-native protocol of E6. Full protocols ship
-under \texttt{experiments/} in the source repository, so that the
-artefact can be challenged in public rather than defended in
-private.
+and the free-floating-native protocol of E6. Pilot scripts and the
+final experiment protocols will be packaged under
+\texttt{experiments/} of the source repository alongside the
+camera-ready release, so that the artefact can be challenged in
+public rather than defended in private.
 
 \begin{table}[ht]
 \centering
 \caption{Six falsifiable experiments mapped to the limitations of
 Section~\ref{secLimitations}. ``Pilot $\checkmark$'' indicates a
-preliminary result already reported in this paper; full protocols are
-documented under \texttt{experiments/} in the source repository.}
+preliminary result already reported in this paper; full protocols
+will be packaged under \texttt{experiments/} of the source
+repository alongside the camera-ready release.}
 \label{tab:roadmap}
 \small
 \begin{tabular}{@{}llll@{}}
@@ -1069,21 +1120,32 @@ therefore benefit from operating on a pre-cleaned set.
 \SetAlgoLined
 \DontPrintSemicolon
 \KwIn{National catalogue $\mathcal{C}$ (123 systems); thresholds
-$\sigma_{\max} = 3$, $N_{\min} = 20$.}
-\KwOut{Certified set $\mathcal{G}$, rejected set $\mathcal{R}$, audit report.}
+$\sigma_{\max} = 3$, $N_{\min} = 20$, $\tau_{A2}^{\text{size}} = 20$,
+$\tau_{A6} = 0.01$, $\tau_{A7} = 0.5$, perimeter
+$\Phi = [41^\circ, 52^\circ] \times [-6^\circ, 10^\circ]$.}
+\KwOut{Certified set $\mathcal{G}$, rejected set $\mathcal{R}$,
+seven per-row anomaly flags $f_{A1}\ldots f_{A7}$, audit report.}
 $\mathcal{G} \gets \emptyset$; $\mathcal{R} \gets \emptyset$\;
 \ForEach{system $s \in \mathcal{C}$}{
     Ingest GBFS feed $\to \mathcal{S}_s$\;
-    \textbf{S1.} If $s$ is car-sharing, relabel \texttt{carsharing} and continue\;
-    \textbf{S2.} If $\mathrm{Var}(c) = 0$ and $c > 0$, force \texttt{free\_floating}\;
-    \textbf{S3.} Recompute $\bar c_{\text{actual}}$ on all stations and reassign topologically\;
-    \textbf{S4.} Keep $\varphi_i \in [41^\circ,52^\circ]$, $\lambda_i \in [-6^\circ,10^\circ]$\;
-    \textbf{S5.} Drop $d(\mathbf{x}_i, \boldsymbol{\mu}_s) > \sigma_{\max} \cdot \sigma_s$\;
-    \textbf{S6.} If $|\mathcal{S}_s^{\text{dock}}| < N_{\min}$, label \texttt{too\_small}\;
-    Update $\mathcal{G}, \mathcal{R}$ accordingly\;
+    \textbf{S1.} If $s$ is car-sharing, relabel \texttt{carsharing} and set $f_{A1}=\texttt{True}$\;
+    \textbf{S2.} If $\mathrm{Var}(c) = 0$, $c > 0$ and $|\mathcal{S}_s^{\text{dock}}| \geq \tau_{A2}^{\text{size}}$, set $f_{A2}=\texttt{True}$ and force \texttt{free\_floating}\;
+    \textbf{S3.} Compute $\bar c_{\text{profile}}/\bar c_{\text{actual}}$; if $> 5.0$ relabel \texttt{free\_floating} and set $f_{A3}=\texttt{True}$\;
+    \textbf{S4.} Keep $\mathbf{x}_i \in \Phi$; mark stations outside as out-of-perimeter\;
+    \textbf{S5.} Compute system bbox area $A_s$; if $A_s > 50{,}000$\,km$^2$, set $f_{A5}=\texttt{True}$ on every $i \in \mathcal{S}_s$\;
+    \textbf{S6.} Robust 3-$\sigma$ outliers on radii $\|\mathbf{x}_i - \boldsymbol{\mu}_s\|$ (median + 1.4826~MAD~scaled): set $f_{A4}=\texttt{True}$\;
+    \textbf{S7.} If $\#\{i\,:\,c_i = 0 \land \text{docked}\} / |\mathcal{S}_s| \geq \tau_{A6}$, set $f_{A6}=\texttt{True}$ on every $i \in \mathcal{S}_s$\;
+    \textbf{S8.} If $\#\{i\,:\,c_i = \texttt{NaN}\} / |\mathcal{S}_s| \geq \tau_{A7}$, set $f_{A7}=\texttt{True}$ on every $i \in \mathcal{S}_s$\;
+    \textbf{S9.} If $|\mathcal{S}_s^{\text{dock}}| < N_{\min}$, label \texttt{too\_small} and route to $\mathcal{R}$\;
+    Update $\mathcal{G}, \mathcal{R}$ and the per-row flag matrix accordingly\;
 }
-\Return $(\mathcal{G}, \mathcal{R}, \text{audit report}, \text{metadata})$\;
-\caption{GBFS raw-to-Audit-Catalogue purging pipeline.}
+\Return $(\mathcal{G}, \mathcal{R}, \{f_{A1}\ldots f_{A7}\}, \text{audit report}, \text{metadata})$\;
+\caption{GBFS raw-to-Audit-Catalogue purging pipeline. Steps S1–S3
+both purge and label (a station relabelled to \texttt{free\_floating}
+or \texttt{carsharing} stays in the catalogue with its A-flags set);
+S4–S5 implement the A5 perimeter check; S6 the A4 outlier check;
+S7–S8 the A6 / A7 capacity-field anomalies. S9 is the only
+truly-removing step.}
 \label{alg:purge}
 \end{algorithm}
 
@@ -1121,7 +1183,7 @@ on an open mobility standard prior to the present work.
 
 \begin{table}[ht]
 \centering
-\caption{Mapping of the six-step purging-protocol design properties
+\caption{Mapping of the nine-step purging-protocol design properties
 to the data-quality dimensions of ISO/IEC~25012:2008 and its
 companion measurement standard ISO/IEC~25024:2015. The Audit
 Catalogue is, to our knowledge, the first FAIR-released
@@ -1296,15 +1358,22 @@ and A7 jointly close the principal blind spots that remain on the
 
 \subsection{Multi-source hybridisation}
 The output of the purging stage enriches each station with a
-contextual profile obtained by articulating five reference sources
+contextual profile obtained by articulating six reference sources
 (Table~\ref{tab:sources}). Hybridisation is performed either by
-spatial joining (point-in-polygon, buffer queries) or by administrative
-aggregation (\ie at the IRIS or municipal level), depending on the
-granularity of the source.
+spatial joining (point-in-polygon, buffer queries) or by
+administrative aggregation (\ie at the IRIS or municipal level),
+depending on the granularity of the source. Each row of
+Table~\ref{tab:sources} corresponds to one or more typed columns
+of the released parquet schema (Table~\ref{tab:schema}).
 
 \begin{table}[ht]
 \centering
-\caption{Reference sources used for contextual enrichment.}
+\caption{Reference sources used for contextual enrichment. Every
+listed source contributes at least one column to the released
+parquet schema (Table~\ref{tab:schema}). Out-of-scope sources
+considered during prototyping but not retained in the v1.0
+release (OpenStreetMap point-of-interest density, FUB cycling
+barometer score) are documented in the audit report.}
 \label{tab:sources}
 \small
 \begin{tabular}{@{}llll@{}}
@@ -1312,16 +1381,18 @@ granularity of the source.
 \textbf{Source} & \textbf{Granularity} & \textbf{Variables} &
 \textbf{Operation}\\
 \midrule
-INSEE Filosofi & IRIS / municipality &
-   Median income/CU, poverty rate, local Gini & Aggregation \\
-BAAC (Cerema)  & geolocated accident &
-   Severe-crash density (500\,m buffer) & Spatial join \\
-BD~TOPO        & polylines &
+INSEE Filosofi      & IRIS / municipality &
+   Median income/CU, local Gini, decile, car-less share & Aggregation \\
+INSEE Recensement   & municipality &
+   Share of commute by bike (\texttt{part\_velo\_travail})  & Aggregation \\
+IGN BD ALTI         & DEM raster &
+   Elevation, topographic roughness index & Spatial sampling \\
+IGN BD TOPO         & polylines &
    Cycle-infrastructure linear (300\,m buffer) & Spatial join \\
-OpenStreetMap  & polygons \& points &
-   Facility density (transit stops, shops, services) & Spatial join \\
-FUB Barometer  & municipal score &
-   Subjective cycling perception (2017--2021) & Aggregation \\
+ONISR BAAC (Cerema) & geolocated accident &
+   Severe-crash count (500\,m, 5\,yr) & Spatial join \\
+National GTFS aggregator & GTFS stops &
+   Heavy-transit stops within 300\,m & Spatial join \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1381,8 +1452,8 @@ marked $^\ast$ are derived from external sources.}
 \quad\texttt{flag\_A1}            & bool    & Out-of-domain inclusion (carsharing)          & 100\,\%\\
 \quad\texttt{flag\_A2}            & bool    & Placeholder capacity at system level          & 100\,\%\\
 \quad\texttt{flag\_A3}            & bool    & Structural over-capacity (free-floating)      & 100\,\%\\
-\quad\texttt{flag\_A4}            & bool    & Geospatial outlier (kept set: False)          & 100\,\%\\
-\quad\texttt{flag\_A5}            & bool    & Out-of-perimeter (kept set: False)            & 100\,\%\\
+\quad\texttt{flag\_A4}            & bool    & Geospatial outlier (3-$\sigma$ on system centroid) & 100\,\%\\
+\quad\texttt{flag\_A5}            & bool    & Out-of-perimeter (system bbox $> 50{,}000$\,km$^2$) & 100\,\%\\
 \quad\texttt{flag\_A6}            & bool    & Zero-capacity dock                            & 100\,\%\\
 \quad\texttt{flag\_A7}            & bool    & Null-capacity field at system level           & 100\,\%\\
 \quad\texttt{operator\_name}     & string  & Normalised operator label                     & 100\,\%\\
@@ -1454,11 +1525,15 @@ JSON Schema, a Frictionless Data Package descriptor
 \cite{FrictionlessData2023}, a DCAT-AP record \cite{DCATAP2021} and a
 Croissant manifest \cite{Croissant2024}. \emph{Reusable:} released
 under ODbL v1.0; code under MIT, with audit report and source code.
-Raw sources are archived with SHA-256 hashes; the Python environment
-is pinned in \texttt{requirements.txt}; a Docker image is published
-for bit-exact reproduction; random seeds are fixed (\texttt{numpy=42},
-\texttt{python=42}); idempotence unit tests run in CI; the audit
-report is generated automatically on every release.
+Raw sources are archived with SHA-256 hashes; the Python
+environment is pinned in \texttt{requirements.txt}; a Docker image
+is published for bit-exact reproduction. The audit pipeline itself
+is fully deterministic (no random sampling); the only stochastic
+step is the bootstrap resampling used for the confidence intervals
+reported in the main text, for which the random seed is pinned at
+\texttt{numpy.random.default\_rng(42)}. Idempotence and per-class
+detector unit tests run in CI on every push; the audit report is
+regenerated automatically on every release tag.
 
 \subsection{Implementation}
 The released Parquet file is $7.8$\,MB on disk for the
@@ -1466,9 +1541,12 @@ $46{,}307$ stations and loads in under one second into a
 standard \texttt{pandas} session on commodity hardware ; typical
 analytical queries (city-level filtering, bounding-box selection,
 joins with external panels) complete in tens of milliseconds.
-The audit pipeline is implemented in roughly $1{,}300$ lines of
-Python organised in three modules, with a stable public API
-documented in the source repository.
+The audit pipeline is implemented as a compact Python package
+(\texttt{audit\_pipeline}, $\sim 560$ lines of code across three
+modules: \texttt{core} for the Tier-1 / Tier-2 detectors,
+\texttt{regenerate} for one-command artefact refresh, and the
+package \texttt{\_\_init\_\_} for the public API) with stable
+function-level entry points documented in the source repository.
 
 \paragraph{Software validation.}
 The audit primitives are accompanied by a unit-test suite
@@ -1531,13 +1609,15 @@ The 142 candidate French GBFS feeds inventoried from
 SHA-256 hashes in the same deposit ; the certified subset of 123
 systems is derived deterministically from them.
 \item \textbf{Source code (MIT licence).} The audit pipeline
-(\texttt{audit\_pipeline} Python package, six-step purging
+(\texttt{audit\_pipeline} Python package, nine-step purging
 protocol, hybridisation joins, FAIR exporters) is released at
 \url{https://github.com/rohanfosse/gbfs-audit-catalogue},
 together with the manuscript source, the companion Jupyter
 notebook (\texttt{notebooks/catalogue\_recipes.ipynb}) and a
-focused interactive dashboard (\texttt{app/streamlit\_app.py},
-deployed at \url{https://gbfs-audit.streamlit.app}). A
+focused interactive dashboard with five tabs (Overview, Anomaly
+browser, Operator audit, Schema, Data explorer) at
+\texttt{app/streamlit\_app.py}, deployed publicly at
+\url{https://gbfs-audit.streamlit.app}. A
 \texttt{CITATION.cff} file and a Docker image
 (\texttt{ghcr.io/rohanfosse/gbfs-audit:1.0.0}) are provided for
 bit-exact reproduction. Releases are mirrored to Zenodo via the
