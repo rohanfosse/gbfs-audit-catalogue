@@ -19,6 +19,7 @@
 \usepackage{microtype}
 \usepackage{amssymb,amsmath,amstext}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \graphicspath{{figures/}}
 \usepackage{algorithm2e}
@@ -97,7 +98,7 @@ on point estimate and confidence interval. Dataset, pipeline and
 Docker image are released for bit-exact reproduction.
 
 \begin{highlights}
-\item Audit of 1{,}509 GBFS systems worldwide: seven-class taxonomy (5 structural + 2 semantic)
+\item Audit of 1{,}509 GBFS systems: seven-class taxonomy (5 structural, 2 semantic)
 \item 30.9\,\% of raw French stations removed, further 61\,\% relabelled by the audit
 \item Hotspots are operator-driven (nextbike in Czechia, Pony in France)
 \item One single capacity field carries four mutually incompatible publication semantics
@@ -1354,7 +1355,8 @@ applied unchanged on both windows; per-system results in
 and \texttt{held\_out\_results\_12mo.csv} (12-month).
 
 \textbf{H1 (rule-firing rate within $\pm 30\,\%$ of the
-derivation rate of $13.5\,\%$).} On the twelve-month window the
+global derivation rate of $13.5\,\%$, i.e., $204/1{,}509$
+systems).} On the twelve-month window the
 A1--A5 firing rate is $11/98 = 11.2\,\%$ (Wilson 95\,\% CI
 $[6.4\,\%, 19.0\,\%]$), which falls inside the pre-registered
 acceptance band $[9.5\,\%, 17.5\,\%]$ at the point estimate.
@@ -2013,8 +2015,10 @@ Croissant manifest. The eleven audit-pipeline columns are the
 key novelty of the catalogue: they make the audit's verdict
 inspectable per row, rather than aggregated in a separate report.
 
-\begin{table}[ht]
-\centering
+{\scriptsize
+\renewcommand{\arraystretch}{0.95}
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}lllr@{}}
 \caption{Released schema of \texttt{stations\_gold\_standard\_final.parquet}.
 ``Compl.'' is the empirical completeness rate on the certified subset.
 Columns marked $^\dag$ are introduced by the audit pipeline; columns
@@ -2023,15 +2027,21 @@ marked $^\ast$ are derived from external sources. The
 \texttt{audit\_pipeline.core.\_audit\_confidence}: \emph{high} if
 no A-flag fires, \emph{medium} if a single A3 or A7 flag fires
 (spec-compliant but consumer-ambiguous), \emph{low} for any other
-combination of one or more structural flags.}
-\label{tab:schema}
-\scriptsize
-\renewcommand{\arraystretch}{0.95}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}lllr@{}}
+combination of one or more structural flags.\label{tab:schema}}\\
 \toprule
 \textbf{Column} & \textbf{Type} & \textbf{Source / Description} & \textbf{Compl.}\\
 \midrule
+\endfirsthead
+\multicolumn{4}{l}{\textit{Table~\ref{tab:schema} (continued)}}\\
+\toprule
+\textbf{Column} & \textbf{Type} & \textbf{Source / Description} & \textbf{Compl.}\\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\textit{Continued on next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
 \multicolumn{4}{l}{\textit{Identifiers (5)}}\\
 \quad\texttt{uid}              & string  & Audit Catalogue primary key                 & 100\,\%\\
 \quad\texttt{station\_id}       & string  & GBFS native identifier                    & 100\,\%\\
@@ -2098,9 +2108,8 @@ combination of one or more structural flags.}
 \midrule
 \multicolumn{4}{l}{\textit{Modal share (1)$^\ast$}}\\
 \quad\texttt{part\_velo\_travail}           & float64 & Share of commute by bike (INSEE)    & 95.1\,\%\\
-\bottomrule
-\end{tabular}
-\end{table}
+\end{longtable}
+}
 
 Empirical completeness on the 5{,}442 dock-based stations is
 above $93\,\%$ for every contextual variable except the optional
