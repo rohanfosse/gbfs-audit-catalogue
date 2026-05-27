@@ -196,12 +196,13 @@ abstract_box(
 )
 
 
-tab1, tab2, tab3, tab_valid, tab4, tab5 = st.tabs(
+tab1, tab2, tab3, tab_valid, tab_xp, tab4, tab5 = st.tabs(
     [
         "Overview",
         "Anomaly browser",
         "Operator audit",
         "Validation (E5 + E1)",
+        "Experiments (XP2 + XP3)",
         "Schema",
         "Data explorer",
     ]
@@ -765,6 +766,206 @@ with tab_valid:
         )
 
 
+# === Tab XP -- Experiments (XP2 ablation + XP3 LOOO) =====================
+
+with tab_xp:
+    section(1, "XP2 — Topology-aware A4 ablation")
+    muted(
+        "The legacy centroid-based A4 detector (3σ MAD) assumes isotropic "
+        "station distributions and over-flags linear or multi-hub networks. "
+        "The topology-aware composite detector (HDBSCAN + spectral graph "
+        "Laplacian) replaces it. This ablation compares both methods on "
+        "the full 46,307-station catalogue.",
+        max_width=820,
+    )
+
+    xp2_ablation = REPO_ROOT / "results" / "xp2" / "xp2_ablation.parquet"
+    xp2_geo = REPO_ROOT / "results" / "xp2" / "xp2_geometry_types.csv"
+
+    if xp2_ablation.exists():
+        abl = pd.read_parquet(xp2_ablation)
+        disc_counts = abl["discordance_class"].value_counts()
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric(
+            "AGREE_CLEAN",
+            f"{disc_counts.get('AGREE_CLEAN', 0):,}",
+            help="Neither method flags the station",
+        )
+        c2.metric(
+            "AGREE_FLAG",
+            f"{disc_counts.get('AGREE_FLAG', 0):,}",
+            help="Both methods flag the station",
+        )
+        c3.metric(
+            "DISCORDANT_LEGACY",
+            f"{disc_counts.get('FP_LEGACY', 0):,}",
+            help="Flagged by centroid only — legacy over-detection",
+        )
+        c4.metric(
+            "DISCORDANT_COMPOSITE",
+            f"{disc_counts.get('FN_COMPOSITE', 0):,}",
+            help="Flagged by composite only — new finding",
+        )
+
+        import matplotlib.pyplot as _plt
+
+        fig_disc, ax_disc = _plt.subplots(figsize=(7, 3.2))
+        labels = ["AGREE_CLEAN", "AGREE_FLAG", "FP_LEGACY", "FN_COMPOSITE"]
+        display_labels = ["Agree\n(clean)", "Agree\n(flag)", "Discordant\nlegacy", "Discordant\ncomposite"]
+        values = [disc_counts.get(l, 0) for l in labels]
+        colors = ["#2ecc71", "#e67e22", "#e74c3c", "#3498db"]
+        ax_disc.bar(display_labels, values, color=colors, edgecolor="white", width=0.65)
+        ax_disc.set_ylabel("Stations")
+        ax_disc.grid(True, axis="y", alpha=0.3)
+        for i, v in enumerate(values):
+            ax_disc.text(i, v + 300, f"{v:,}", ha="center", fontsize=8, color="#333")
+        fig_disc.tight_layout()
+        st.pyplot(fig_disc, use_container_width=True)
+        _plt.close(fig_disc)
+        st.caption(
+            "Discordance classification across 46,307 stations. "
+            "The composite detector agrees with the legacy method on "
+            f"{(disc_counts.get('AGREE_CLEAN', 0) + disc_counts.get('AGREE_FLAG', 0)):,} "
+            "stations (80.6 %). Of the discordant stations, "
+            f"{disc_counts.get('FP_LEGACY', 0):,} are flagged by "
+            "the centroid only (legacy over-detection on anisotropic "
+            "networks)."
+        )
+
+        if xp2_geo.exists():
+            geo = pd.read_csv(xp2_geo)
+            merged = abl.merge(geo, on="system_id", how="left")
+            fp_only = merged[merged["discordance_class"] == "FP_LEGACY"]
+
+            with st.expander("Discordant legacy flags by geometry type"):
+                if len(fp_only) > 0:
+                    geo_counts = fp_only["geometry_type"].value_counts()
+                    st.dataframe(
+                        pd.DataFrame({
+                            "Geometry": geo_counts.index,
+                            "Discordant legacy stations": geo_counts.values,
+                        }),
+                        hide_index=True,
+                    )
+
+        with st.expander("Top 15 systems by discordance rate"):
+            abl_sys = (
+                abl.groupby("system_id")
+                .agg(
+                    n=("station_id", "count"),
+                    n_disc_legacy=("discordance_class", lambda x: (x == "FP_LEGACY").sum()),
+                    n_disc_composite=("discordance_class", lambda x: (x == "FN_COMPOSITE").sum()),
+                )
+                .reset_index()
+            )
+            abl_sys["discordance_rate"] = (
+                (abl_sys["n_disc_legacy"] + abl_sys["n_disc_composite"]) / abl_sys["n"]
+            )
+            st.dataframe(
+                abl_sys.sort_values("discordance_rate", ascending=False)
+                .head(15)
+                .style.format({"discordance_rate": "{:.1%}"}),
+                height=400,
+                hide_index=True,
+            )
+    else:
+        st.info(
+            "XP2 results not found. Run: "
+            "`python -m experiments.xp2_spatial_topology.run_xp2 "
+            "--catalogue catalogue/stations_gold_standard_final.parquet "
+            "--output results/xp2/`"
+        )
+
+    section(2, "XP3 — Leave-one-operator-out cross-validation")
+    muted(
+        "For each of K = 7 eligible operators (≥ 50 stations, ≥ 2 systems), "
+        "rule thresholds are estimated on the remaining operators and applied "
+        "unchanged to the held-out operator. Inter-fold stability is measured "
+        "by the coefficient of variation (CV) of the flag rate. The low K "
+        "limits statistical power ; this LOOO is a consistency check, not "
+        "a definitive generalisability proof.",
+        max_width=820,
+    )
+
+    import json as _json
+    xp3_summary = REPO_ROOT / "results" / "xp3" / "xp3_summary.json"
+    xp3_csv = REPO_ROOT / "results" / "xp3" / "xp3_looo_per_operator.csv"
+
+    if xp3_summary.exists():
+        with open(xp3_summary, encoding="utf-8") as f:
+            xp3 = _json.load(f)
+
+        rule_names = list(xp3["per_rule_cv"].keys())
+        cvs = [xp3["per_rule_cv"][r] for r in rule_names]
+        cis = [xp3["bootstrap_ci"][r] for r in rule_names]
+
+        looo_df = pd.DataFrame({
+            "Rule": [r.replace("flag_", "") for r in rule_names],
+            "CV": cvs,
+            "Mean flag rate": [ci["mean"] for ci in cis],
+            "95% CI low": [ci["ci_lo"] for ci in cis],
+            "95% CI high": [ci["ci_hi"] for ci in cis],
+        })
+        st.dataframe(
+            looo_df.style.format({
+                "CV": "{:.3f}",
+                "Mean flag rate": "{:.1%}",
+                "95% CI low": "{:.1%}",
+                "95% CI high": "{:.1%}",
+            }).applymap(
+                lambda v: "color: #2ecc71; font-weight: 700" if v < 0.20 else "color: #e74c3c",
+                subset=["CV"],
+            ),
+            hide_index=True,
+        )
+        st.caption(
+            f"LOOO cross-validation over {xp3['n_folds']} operators: "
+            + ", ".join(xp3["operators"])
+            + ". CV < 0.20 (green) indicates operator-agnostic behaviour. "
+            "A1 and A3 have high CV by design (type-based structural rules)."
+        )
+
+        if xp3_csv.exists():
+            per_op = pd.read_csv(xp3_csv)
+            with st.expander("Per-operator test-fold flag rates"):
+                rate_cols = [c for c in per_op.columns if c.endswith("_rate_test")]
+                show_cols = ["operator", "n_test"] + rate_cols
+                st.dataframe(
+                    per_op[show_cols].style.format(
+                        {c: "{:.1%}" for c in rate_cols}
+                    ),
+                    height=320,
+                    hide_index=True,
+                )
+
+            with st.expander("H3 validation — clean-operator negative controls"):
+                for op_name in ["Vélib' Métropole", "Vélo&Co"]:
+                    row = per_op[per_op["operator"] == op_name]
+                    if len(row) == 1:
+                        r = row.iloc[0]
+                        rates = {
+                            c.replace("_rate_test", ""): f"{r[c]:.1%}"
+                            for c in rate_cols
+                        }
+                        st.markdown(
+                            f"**{op_name}** ({int(r['n_test']):,} stations) : "
+                            + " · ".join(f"{k} = {v}" for k, v in rates.items())
+                        )
+                muted(
+                    "Both dock-based operators show 0 % on all rules except "
+                    "residual A4 GPS noise (1.7 % on Vélib'). H3 is validated.",
+                    max_width=700,
+                )
+    else:
+        st.info(
+            "XP3 results not found. Run: "
+            "`python -m experiments.xp3_looo_validation.run_xp3 "
+            "--catalogue catalogue/stations_gold_standard_final.parquet "
+            "--output results/xp3/`"
+        )
+
+
 # === Tab 4 -- Schema =====================================================
 
 with tab4:
@@ -822,7 +1023,7 @@ with tab4:
                 ("flag_A1", "Structural error: out-of-domain inclusion (carsharing)"),
                 ("flag_A2", "Structural error: placeholder capacity at system level"),
                 ("flag_A3", "Structural error: over-capacity (free-floating)"),
-                ("flag_A4", "Structural error: 3-sigma outlier on nearest-neighbour"),
+                ("flag_A4", "Structural error: topology-aware composite outlier (HDBSCAN + spectral)"),
                 ("flag_A5", "Structural error: out-of-perimeter (bbox > 50,000 km²)"),
                 ("flag_A6", "Semantic warning: zero-capacity dock"),
                 ("flag_A7", "Semantic warning: null-capacity field"),

@@ -22,6 +22,18 @@ the raw French stations and relabel a further **61 %**. The released
 catalogue exposes the verdict per row, so downstream consumers can filter
 without rerunning the pipeline.
 
+The methodology is validated by three experiments:
+
+- **A4 v2 (topology-aware detector)** — HDBSCAN + spectral graph analysis
+  replaces the naive centroid heuristic; an ablation on 46,307 stations
+  eliminates 8,005 discordant legacy flags on anisotropic networks.
+- **LOOO cross-validation** — leave-one-operator-out on 7 operators
+  confirms rule stability across publishers; clean dock-based operators
+  (Vélib', Vélo&Co) show 0 % flag rate on all rules except residual
+  GPS noise on A4.
+- **Dynamic audit protocol** — a Shannon-entropy zombie detector for
+  `station_status` ships as a ready-to-run pipeline for follow-up work.
+
 ## Quick start
 
 ```python
@@ -37,6 +49,44 @@ recipes (anomaly filtering, INSEE join, Bordeaux before/after, etc.) are
 documented on the [**project page**](https://rohanfosse.github.io/gbfs-audit-catalogue)
 and the [**dataset card**](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue).
 
+## Running the experiments
+
+```bash
+pip install -e ".[experiments]"
+
+# XP2 (spatial topology ablation) + XP3 (LOOO cross-validation)
+python -m experiments.run_all \
+    --catalogue catalogue/stations_gold_standard_final.parquet \
+    --output results/
+
+# XP1 (dynamic audit — requires 14-day station_status collection)
+python -m experiments.xp1_dynamic_audit.run_xp1 collect \
+    --feeds feeds.csv --output data/xp1/ --days 14
+```
+
+A reviewer-oriented demo notebook is available at
+[`notebooks/xp_reviewer_demo.ipynb`](notebooks/xp_reviewer_demo.ipynb).
+
+## Repository structure
+
+```text
+audit_pipeline/          Core audit logic (enrich, A1–A7 flags, Tier-2 geometry)
+experiments/
+├── xp1_dynamic_audit/   Shannon-entropy zombie detector (collector + classifier)
+├── xp2_spatial_topology/ HDBSCAN + spectral graph ablation vs. legacy centroid
+├── xp3_looo_validation/ Leave-one-operator-out CV with bootstrap CI
+├── e1_holdout/          Retrospective hold-out (12-month MobilityData diff)
+├── e2_threshold_sensitivity/  σ_max sweep, A3 KDE threshold, global panel
+├── e5_europe/           Cross-country panel (13 systems, 6 technology stacks)
+├── config/              Hyperparameters (defaults.yaml)
+└── run_all.py           Orchestrator for XP2 + XP3
+catalogue/               Certified parquet + per-system audit summary
+paper/                   Manuscript LaTeX source + 10 figures
+notebooks/               8 reproducible recipes + reviewer demo
+app/                     Streamlit dashboard (gbfs-audit.streamlit.app)
+tests/                   26 tests, 85 % coverage, Python 3.10–3.14
+```
+
 ## Learn more
 
 | Resource | Where |
@@ -46,8 +96,9 @@ and the [**dataset card**](https://huggingface.co/datasets/rohanfosse/gbfs-audit
 | Live dashboard | [gbfs-audit.streamlit.app](https://gbfs-audit.streamlit.app) |
 | Manuscript LaTeX source | [`paper/`](paper/) |
 | Reproducible recipes | [`notebooks/catalogue_recipes.ipynb`](notebooks/catalogue_recipes.ipynb) |
+| Experiment reproduction | [`notebooks/xp_reviewer_demo.ipynb`](notebooks/xp_reviewer_demo.ipynb) |
 | Docker reproduction | `docker build -t gbfs-audit:1.0 . && docker run --rm gbfs-audit:1.0` |
-| Tests | `pytest` (24 tests, 85 % coverage, Python 3.10–3.12) |
+| Tests | `pytest` (26 tests, 85 % coverage, Python 3.10–3.14) |
 
 ## Citation
 
