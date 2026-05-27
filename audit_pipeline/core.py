@@ -151,6 +151,57 @@ def detect_operator(system_id: str, system_name: str) -> str:
     return str(system_name or "Unknown").strip()
 
 
+def _haversine_m(lat1: np.ndarray, lon1: np.ndarray,
+                 lat2: np.ndarray, lon2: np.ndarray) -> np.ndarray:
+    """Vectorised haversine distance in metres."""
+    R = 6_371_000.0
+    dlat = np.radians(lat2 - lat1)
+    dlon = np.radians(lon2 - lon1)
+    a = (np.sin(dlat / 2) ** 2
+         + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2))
+         * np.sin(dlon / 2) ** 2)
+    return R * 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+
+
+def _detect_a4_outliers(df: pd.DataFrame, sigma_max: float = 3.0) -> pd.Series:
+    """A4 — flag stations beyond sigma_max MAD-based deviations from system centroid."""
+    flags = pd.Series(False, index=df.index)
+    for sys_id, grp in df.groupby("system_id"):
+        lats = grp["lat"].to_numpy(dtype="float64")
+        lons = grp["lon"].to_numpy(dtype="float64")
+        valid = ~(np.isnan(lats) | np.isnan(lons))
+        if valid.sum() < 5:
+            continue
+        clat = np.nanmedian(lats[valid])
+        clon = np.nanmedian(lons[valid])
+        dists = _haversine_m(lats, lons,
+                             np.full_like(lats, clat),
+                             np.full_like(lons, clon))
+        med_d = np.nanmedian(dists[valid])
+        mad = np.nanmedian(np.abs(dists[valid] - med_d)) * 1.4826
+        mad = max(mad, 1.0)
+        flags.loc[grp.index] = dists > (med_d + sigma_max * mad)
+    return flags
+
+
+def _detect_a5_perimeter(df: pd.DataFrame, area_threshold_km2: float = 50_000) -> pd.Series:
+    """A5 — flag all stations in systems whose bounding-box area exceeds the threshold."""
+    flags = pd.Series(False, index=df.index)
+    for sys_id, grp in df.groupby("system_id"):
+        lats = grp["lat"].dropna().to_numpy()
+        lons = grp["lon"].dropna().to_numpy()
+        if len(lats) < 3:
+            continue
+        R = 6_371_000.0
+        mean_lat = np.radians(np.mean(lats))
+        x = R * np.radians(lons) * np.cos(mean_lat)
+        y = R * np.radians(lats)
+        bbox_km2 = ((x.max() - x.min()) / 1000) * ((y.max() - y.min()) / 1000)
+        if bbox_km2 > area_threshold_km2:
+            flags.loc[grp.index] = True
+    return flags
+
+
 # ---------------------------------------------------------------------------
 # Geodesy
 # ---------------------------------------------------------------------------

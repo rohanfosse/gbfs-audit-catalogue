@@ -1,0 +1,24 @@
+# GBFS Audit Catalogue — Experiment dependencies
+# Install with:  pip install -r requirements-experiments.txt
+# These extend requirements.txt (core pipeline) with scientific computing
+# and async HTTP libraries needed by experiments/
+
+# ── Core (duplicated for standalone install) ──
+pandas>=2.0.0
+numpy>=1.26.0
+pyarrow>=14.0.0
+matplotlib>=3.7.0
+
+# ── XP1: Dynamic Audit (async station_status collection) ──
+httpx[http2]>=0.27.0
+
+# ── XP2: Spatial Topology (HDBSCAN, spectral graph, k-NN) ──
+scikit-learn>=1.4.0
+scipy>=1.12.0
+hdbscan>=0.8.33
+
+# ── XP3: LOOO Validation (statistical tests) ──
+# scipy already covers Cochran's Q via scipy.stats
+
+# ── Experiment config ──
+pyyaml>=6.0.0
