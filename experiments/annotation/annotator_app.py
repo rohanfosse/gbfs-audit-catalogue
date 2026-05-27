@@ -169,6 +169,17 @@ st.markdown("""
 
 if "start_times" not in st.session_state:
     st.session_state.start_times = {}
+if "just_saved" not in st.session_state:
+    st.session_state.just_saved = False
+if "last_saved_station" not in st.session_state:
+    st.session_state.last_saved_station = ""
+
+
+def _clear_form():
+    """Réinitialise les réponses du formulaire pour la station suivante."""
+    for key in ["q1", "q2", "q3", "q4", "q5", "notes"]:
+        if key in st.session_state:
+            del st.session_state[key]
 
 
 # =====================================================================
@@ -348,6 +359,20 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Message de transition si on vient d'enregistrer
+if st.session_state.just_saved:
+    prev = st.session_state.last_saved_station
+    st.markdown(
+        f"<div style='background:#eafaf1; border-left:3px solid #27ae60; "
+        f"padding:0.4rem 0.8rem; border-radius:0 4px 4px 0; "
+        f"font-size:0.84rem; margin-bottom:0.4rem;'>"
+        f"Station précédente (<code>{prev}</code>) enregistrée. "
+        f"Vous êtes maintenant sur une nouvelle station."
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+    st.session_state.just_saved = False
+
 st.markdown(
     f"<div class='guideline-box'>{guideline}</div>",
     unsafe_allow_html=True,
@@ -416,9 +441,9 @@ with col_left:
             "<span style='color:#00aa00; font-weight:700;'>---</span> "
             "Voie verte / voie partagée piétons-vélos</div>"
             "<div class='legend-item'>"
-            "<span style='color:#0092da; font-weight:700;'>&#9679;</span> "
-            "Station de vélos en libre-service "
-            "(<code>amenity=bicycle_rental</code>)</div>"
+            "<span style='color:#0092da; font-weight:700;'>&#x1F6B2;</span> "
+            "Station de vélos en libre-service (petit vélo bleu sur la carte, "
+            "<code>amenity=bicycle_rental</code>)</div>"
             "<div class='legend-item'>"
             "<span style='color:#0092da;'>P</span> "
             "Stationnement vélo / arceaux "
@@ -449,7 +474,7 @@ with col_right:
         ("Coordonnées", f"{lat:.5f}, {lon:.5f}" if lat and lon else None),
     ]
     for label, val in meta_pairs:
-        v = str(val) if pd.notna(val) else "---"
+        v = str(val) if pd.notna(val) else "non renseigné"
         st.markdown(
             f"<div><span class='meta-label'>{label}</span><br>"
             f"<span class='meta-value'>{v}</span></div>",
@@ -457,32 +482,37 @@ with col_right:
         )
 
     st.markdown("")
-    st.markdown("**Verdict du pipeline (flags A1--A7)**")
-    any_flag = False
-    for i in range(1, 8):
-        col_name = f"flag_A{i}"
-        is_on = bool(row.get(col_name, False)) if col_name in row.index else False
-        if is_on:
-            any_flag = True
-        css = "flag-on" if is_on else "flag-off"
-        marker = "ACTIF" if is_on else "---"
-        desc = FLAG_LABELS.get(f"A{i}", "")
-        st.markdown(
-            f"<div class='flag-row'>"
-            f"<span class='{css}'>A{i} [{marker}]</span> "
-            f"<span style='color:#999; font-size:0.76rem;'>{desc}</span>"
-            f"</div>",
-            unsafe_allow_html=True,
+    with st.expander("Verdict du pipeline (cliquer pour révéler, peut biaiser votre jugement)"):
+        st.caption(
+            "Ces informations sont masquées par défaut pour ne pas "
+            "influencer votre évaluation. Consultez-les uniquement "
+            "si vous avez déjà formé votre propre opinion."
         )
+        any_flag = False
+        for i in range(1, 8):
+            col_name = f"flag_A{i}"
+            is_on = bool(row.get(col_name, False)) if col_name in row.index else False
+            if is_on:
+                any_flag = True
+            css = "flag-on" if is_on else "flag-off"
+            marker = "ACTIF" if is_on else "inactif"
+            desc = FLAG_LABELS.get(f"A{i}", "")
+            st.markdown(
+                f"<div class='flag-row'>"
+                f"<span class='{css}'>A{i} [{marker}]</span> "
+                f"<span style='color:#999; font-size:0.76rem;'>{desc}</span>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
 
-    if not any_flag:
-        st.markdown(
-            "<div style='color:#27ae60; font-size:0.84rem; "
-            "font-weight:600; margin-top:0.3rem;'>"
-            "Aucun flag déclenché -- le pipeline considère cette station "
-            "comme propre.</div>",
-            unsafe_allow_html=True,
-        )
+        if not any_flag:
+            st.markdown(
+                "<div style='color:#27ae60; font-size:0.84rem; "
+                "font-weight:600; margin-top:0.3rem;'>"
+                "Aucun flag déclenché. Le pipeline considère cette "
+                "station comme propre.</div>",
+                unsafe_allow_html=True,
+            )
 
 
 # =====================================================================
@@ -622,6 +652,9 @@ with btn_save:
             updated = pd.DataFrame([new_row])
         updated.to_csv(labels_path, index=False)
         st.session_state.start_times.pop(station_key, None)
+        st.session_state.just_saved = True
+        st.session_state.last_saved_station = row.get("station_id", "")
+        _clear_form()
         st.rerun()
 
 with btn_skip:
@@ -650,6 +683,9 @@ with btn_skip:
             updated = pd.DataFrame([skip_row])
         updated.to_csv(labels_path, index=False)
         st.session_state.start_times.pop(station_key, None)
+        st.session_state.just_saved = True
+        st.session_state.last_saved_station = row.get("station_id", "")
+        _clear_form()
         st.rerun()
 
 if not all_answered:
