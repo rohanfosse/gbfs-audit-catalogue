@@ -1,12 +1,11 @@
-"""GBFS Audit — Human Annotation Tool (Ground-Truth Validation).
+"""GBFS Audit Catalogue -- Outil d'annotation humaine.
 
-A research-grade annotation interface for the stratified 175-station
-sample. Two independent annotators label each station against the
-A1–A7 taxonomy; inter-rater reliability is computed offline via
-compute_reliability.py.
+Validation ground-truth sur un echantillon stratifie de 175 stations.
+Deux annotateurs independants evaluent chaque station ; la fiabilite
+inter-annotateurs est calculee ensuite via compute_reliability.py.
 
-Usage:
-    streamlit run experiments/annotation/annotator_app.py
+Usage :
+    python -m streamlit run experiments/annotation/annotator_app.py
 """
 from __future__ import annotations
 
@@ -16,7 +15,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pydeck as pdk
 import streamlit as st
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -25,133 +23,195 @@ LABELS_DIR = Path(__file__).resolve().parent
 CATALOGUE_PATH = REPO_ROOT / "catalogue" / "stations_gold_standard_final.parquet"
 
 STRATUM_COLORS = {
-    "clean_docked": "#2ecc71",
-    "A1_carsharing": "#9b59b6",
-    "A2_placeholder": "#e67e22",
-    "A3_freefloating": "#3498db",
-    "A4_agree_flag": "#e74c3c",
-    "A4_discordant_legacy": "#c0392b",
-    "A4_discordant_composite": "#2980b9",
-    "A6_zero_capacity": "#1abc9c",
+    "clean_docked": "#27ae60",
+    "A1_carsharing": "#8e44ad",
+    "A2_placeholder": "#d35400",
+    "A3_freefloating": "#2980b9",
+    "A4_agree_flag": "#c0392b",
+    "A4_discordant_legacy": "#e74c3c",
+    "A4_discordant_composite": "#2471a3",
+    "A6_zero_capacity": "#16a085",
     "A7_null_capacity": "#f39c12",
     "A3_boundary": "#7f8c8d",
 }
 
-STRATUM_DESCRIPTIONS = {
-    "clean_docked": "No flag triggered, high confidence, dock-based. Check for false negatives.",
-    "A1_carsharing": "Flagged as car-sharing. Verify: is this a bike-sharing station or a car fleet?",
-    "A2_placeholder": "System-wide identical capacity. Verify: is capacity a real dock count or a placeholder?",
-    "A3_freefloating": "Flagged as free-floating virtual anchor. Verify: physical docks or GPS waypoint?",
-    "A4_agree_flag": "Both legacy centroid and composite detector flag this station as a geospatial outlier.",
-    "A4_discordant_legacy": "Legacy centroid flags this station, but the composite does NOT. Is this a true outlier?",
-    "A4_discordant_composite": "Composite flags this station, but the legacy centroid does NOT. New finding?",
-    "A6_zero_capacity": "Station declares capacity = 0. Does this physical station actually have zero docks?",
-    "A7_null_capacity": "Station declares capacity = NaN. Does the operator simply not publish this field?",
-    "A3_boundary": "Capacity ratio in [2, 5] — the A3 threshold grey zone. Dock-based or virtual?",
+STRATUM_GUIDELINES = {
+    "clean_docked": (
+        "Cette station n'a declenche aucun flag et a ete classee en haute "
+        "confiance. Votre role est de verifier qu'il ne s'agit pas d'un "
+        "faux negatif : la station est-elle reellement un dock velo "
+        "fonctionnel aux coordonnees indiquees ?"
+    ),
+    "A1_carsharing": (
+        "Le pipeline a detecte un systeme d'autopartage (voitures) "
+        "publie sous le schema GBFS velo. Verifiez sur la carte et "
+        "Street View : voyez-vous des bornes de velos ou des places "
+        "de stationnement automobile ?"
+    ),
+    "A2_placeholder": (
+        "Toutes les stations de ce systeme declarent exactement la "
+        "meme capacite (ex : 100 partout). Verifiez : est-ce un vrai "
+        "nombre de bornes physiques, ou un placeholder insere par "
+        "l'operateur ?"
+    ),
+    "A3_freefloating": (
+        "Cette station est identifiee comme un ancrage virtuel de "
+        "flotte free-floating. Verifiez sur la carte : y a-t-il des "
+        "bornes physiques visibles, ou s'agit-il simplement d'un "
+        "point GPS ou un vehicule a ete gare ?"
+    ),
+    "A4_agree_flag": (
+        "Les DEUX detecteurs (centroide legacy et composite topologique) "
+        "considerent cette station comme un outlier geospatial. "
+        "Verifiez : la station est-elle reellement isolee du reste "
+        "du reseau, ou appartient-elle a une extension legitime "
+        "(gare, campus, zone d'activite) ?"
+    ),
+    "A4_discordant_legacy": (
+        "C'est la strate la plus importante de l'annotation. Le "
+        "centroide legacy flag cette station comme outlier, mais le "
+        "detecteur composite (HDBSCAN + spectral) la considere comme "
+        "normale. Votre verdict determine directement si les 8 005 "
+        "stations discordantes sont de vrais faux positifs du legacy."
+    ),
+    "A4_discordant_composite": (
+        "Le detecteur composite flag cette station, mais le centroide "
+        "legacy ne la detecte pas. C'est une nouvelle detection. "
+        "Verifiez : la station est-elle reellement problematique ?"
+    ),
+    "A6_zero_capacity": (
+        "La station declare une capacite de zero bornes. Verifiez sur "
+        "la carte : la station existe-t-elle physiquement ? A-t-elle "
+        "ete desinstallee ou est-elle en travaux ?"
+    ),
+    "A7_null_capacity": (
+        "La station declare capacity = NaN (champ vide). C'est le "
+        "pattern typique de Dott et Bird. Verifiez simplement que "
+        "la station existe bien a ces coordonnees."
+    ),
+    "A3_boundary": (
+        "Le ratio de capacite de ce systeme est entre 2 et 5 -- la zone "
+        "grise du seuil A3. Verifiez : s'agit-il d'un systeme de "
+        "bornes physiques avec des capacites heterogenes, ou d'un "
+        "systeme free-floating avec un estimateur de profil ?"
+    ),
 }
 
-FLAG_NAMES = {
-    "A1": "Out-of-domain inclusion (car-sharing)",
-    "A2": "Placeholder capacity (constant across system)",
-    "A3": "Structural over-capacity (free-floating anchor)",
-    "A4": "Geospatial outlier (topology-aware composite)",
-    "A5": "Out-of-perimeter (bbox > 50,000 km²)",
-    "A6": "Zero-capacity dock (semantic warning)",
-    "A7": "Null capacity field (semantic warning)",
+FLAG_LABELS = {
+    "A1": "Inclusion hors domaine (autopartage)",
+    "A2": "Capacite placeholder (constante sur tout le systeme)",
+    "A3": "Sur-capacite structurelle (ancrage free-floating)",
+    "A4": "Outlier geospatial (detecteur topologique composite)",
+    "A5": "Hors perimetre (surface > 50 000 km2)",
+    "A6": "Dock a zero capacite (avertissement semantique)",
+    "A7": "Champ capacite nul / NaN (avertissement semantique)",
 }
 
-# ─── Page config ─────────────────────────────────────────────────────
+
+# =====================================================================
+# Configuration de la page
+# =====================================================================
 
 st.set_page_config(
-    page_title="GBFS Annotation Tool",
-    page_icon="🔬",
+    page_title="Annotation GBFS -- Ground Truth",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 st.markdown("""
 <style>
-    .block-container { padding-top: 1.5rem; }
-    div[data-testid="stRadio"] > label { font-size: 0.88rem; }
+    .block-container { padding-top: 0.6rem; max-width: 1400px; }
+    section[data-testid="stSidebar"] > div { padding-top: 0.8rem; }
     .stratum-badge {
-        display: inline-block;
-        padding: 0.15rem 0.55rem;
-        border-radius: 3px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: white;
-        letter-spacing: 0.03em;
+        display: inline-block; padding: 0.12rem 0.5rem;
+        border-radius: 3px; font-size: 0.73rem; font-weight: 700;
+        color: white; letter-spacing: 0.02em;
     }
     .guideline-box {
-        background: #f0f4f8;
-        border-left: 3px solid #1A6FBF;
-        padding: 0.6rem 0.9rem;
-        border-radius: 0 4px 4px 0;
-        font-size: 0.85rem;
-        margin-bottom: 0.8rem;
+        background: #f0f4f8; border-left: 3px solid #1A6FBF;
+        padding: 0.55rem 0.85rem; border-radius: 0 4px 4px 0;
+        font-size: 0.84rem; margin-bottom: 0.5rem; line-height: 1.45;
     }
-    .flag-chip {
-        display: inline-block;
-        padding: 0.1rem 0.45rem;
-        border-radius: 3px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        margin-right: 0.3rem;
-        margin-bottom: 0.2rem;
+    .links-bar {
+        display: flex; gap: 0.6rem; flex-wrap: wrap;
+        margin-top: 0.3rem; margin-bottom: 0.2rem;
     }
-    .flag-on { background: #e74c3c; color: white; }
-    .flag-off { background: #ecf0f1; color: #95a5a6; }
+    .links-bar a {
+        display: inline-block; padding: 0.25rem 0.65rem;
+        border-radius: 4px; font-size: 0.78rem; font-weight: 600;
+        text-decoration: none; border: 1px solid #ccc; color: #333;
+    }
+    .links-bar a:hover { background: #f0f0f0; }
+    .links-bar a.primary { background: #1A6FBF; color: white; border-color: #1A6FBF; }
+    .links-bar a.primary:hover { background: #155a8a; }
+    .flag-row { font-size: 0.82rem; margin-bottom: 0.15rem; }
+    .flag-on { color: #c0392b; font-weight: 700; }
+    .flag-off { color: #bdc3c7; }
+    .meta-label { font-size: 0.76rem; color: #777; margin-top: 0.25rem; }
+    .meta-value { font-size: 0.88rem; font-weight: 600; color: #222; }
 </style>
 """, unsafe_allow_html=True)
 
-# ─── Session state ───────────────────────────────────────────────────
 
-if "annotation_start_times" not in st.session_state:
-    st.session_state.annotation_start_times = {}
+# =====================================================================
+# Session state
+# =====================================================================
 
-# ─── Sidebar: annotator + protocol ──────────────────────────────────
+if "start_times" not in st.session_state:
+    st.session_state.start_times = {}
+
+
+# =====================================================================
+# Sidebar : identite, protocole, progression
+# =====================================================================
 
 with st.sidebar:
-    st.markdown("## 🔬 Annotation Session")
+    st.markdown("## Session d'annotation")
 
     annotator_name = st.text_input(
-        "Annotator name",
+        "Votre nom",
         value="",
-        placeholder="e.g. Rohan",
+        placeholder="ex : Rohan",
         key="annotator_name",
     )
     if not annotator_name.strip():
-        st.warning("Enter your name to begin.")
+        st.warning("Entrez votre nom pour commencer.")
         st.stop()
 
     annotator_id = annotator_name.strip().lower().replace(" ", "_")
     labels_path = LABELS_DIR / f"labels_{annotator_id}.csv"
 
     st.markdown("---")
-    st.markdown("### Protocol summary")
+    st.markdown("### Protocole")
     st.markdown(
-        "For each station, you will see:\n"
-        "- A **map** with the station's location (+ network context)\n"
-        "- **Satellite / Street View** links for visual verification\n"
-        "- **Metadata** from the GBFS feed and the audit pipeline\n"
-        "- A **guideline** specific to this station's stratum\n\n"
-        "Answer the **5 questions** based on what you observe, "
-        "then click **Save & Next**."
+        "Pour chaque station, vous disposez de :\n\n"
+        "- Une **carte OpenStreetMap** centree sur la station "
+        "(couche CycleMap, pistes cyclables visibles)\n"
+        "- Des **liens directs** vers Street View, CyclOSM et "
+        "la page OSM de la zone\n"
+        "- Les **metadonnees GBFS** et le **verdict du pipeline**\n"
+        "- Une **consigne specifique** a la strate de cette station\n\n"
+        "Repondez aux 5 questions, puis cliquez sur Enregistrer."
     )
-
     st.markdown(
         "<div class='guideline-box'>"
-        "<b>Key principle:</b> you are the ground truth. "
-        "If the pipeline says 'anomaly' but you see a legitimate station "
-        "on Street View, label it <b>pipeline false positive</b>."
+        "<b>Principe fondamental :</b> vous etes la verite terrain. "
+        "Si le pipeline signale une anomalie mais que vous constatez "
+        "une station velo legitime sur Street View ou sur la carte, "
+        "repondez <b>faux positif du pipeline</b>. Inversement, si "
+        "le pipeline ne signale rien mais que la station vous semble "
+        "suspecte, notez-le dans les remarques."
         "</div>",
         unsafe_allow_html=True,
     )
 
-# ─── Load data ───────────────────────────────────────────────────────
+
+# =====================================================================
+# Chargement des donnees
+# =====================================================================
 
 if not SAMPLE_PATH.exists():
-    st.error(f"Sample not found: `{SAMPLE_PATH}`")
+    st.error(f"Fichier echantillon introuvable : {SAMPLE_PATH}")
     st.stop()
 
 sample = pd.read_csv(SAMPLE_PATH)
@@ -172,7 +232,6 @@ remaining = sample[~sample["_key"].isin(done_keys)]
 n_total = len(sample)
 n_done = n_total - len(remaining)
 
-# Load full catalogue for network context
 if CATALOGUE_PATH.exists():
     @st.cache_data
     def _load_catalogue():
@@ -181,263 +240,312 @@ if CATALOGUE_PATH.exists():
 else:
     full_cat = None
 
-# ─── Sidebar: progress ──────────────────────────────────────────────
+
+# =====================================================================
+# Sidebar : progression
+# =====================================================================
 
 with st.sidebar:
     st.markdown("---")
-    st.markdown("### Progress")
+    st.markdown("### Progression")
     st.progress(n_done / n_total if n_total > 0 else 0.0)
-    st.markdown(
-        f"**{n_done}** / **{n_total}** stations annotated "
-        f"({100 * n_done / n_total:.0f}%)"
-    )
+    st.markdown(f"**{n_done}** / **{n_total}** stations annotees")
 
     if n_done > 0 and labels_path.exists():
-        times = pd.read_csv(labels_path)
-        non_skip = times[times["Q5_verdict"] != "skipped"]
+        tmp = pd.read_csv(labels_path)
+        non_skip = tmp[tmp["Q5_verdict"] != "skipped"]
         if "duration_s" in non_skip.columns and len(non_skip) > 0:
-            median_time = non_skip["duration_s"].median()
-            remaining_est = median_time * len(remaining) / 60
+            med = non_skip["duration_s"].median()
+            rest_min = med * len(remaining) / 60
             st.caption(
-                f"Median annotation time: {median_time:.0f}s per station · "
-                f"Est. remaining: {remaining_est:.0f} min"
+                f"Temps median : {med:.0f}s par station -- "
+                f"Temps restant estime : ~{rest_min:.0f} min"
             )
 
-    st.markdown("#### Per-stratum progress")
-    by_stratum = sample.copy()
-    by_stratum["done"] = by_stratum["_key"].isin(done_keys)
-    progress = (
-        by_stratum.groupby("stratum")
-        .agg(done=("done", "sum"), total=("_key", "count"))
-        .reset_index()
-    )
-    progress["pct"] = (progress["done"] / progress["total"] * 100).astype(int)
-    for _, r in progress.iterrows():
+    st.markdown("#### Par strate")
+    by_str = sample.copy()
+    by_str["done"] = by_str["_key"].isin(done_keys)
+    prog = by_str.groupby("stratum").agg(
+        fait=("done", "sum"), total=("_key", "count")
+    ).reset_index()
+    for _, r in prog.iterrows():
         color = STRATUM_COLORS.get(r["stratum"], "#999")
-        pct = r["pct"]
+        pct = int(100 * r["fait"] / r["total"]) if r["total"] > 0 else 0
+        bar = "|" * (pct // 10) + "." * (10 - pct // 10)
         st.markdown(
             f"<span class='stratum-badge' style='background:{color};'>"
             f"{r['stratum']}</span> "
-            f"{'█' * (pct // 10)}{'░' * (10 - pct // 10)} "
-            f"{r['done']}/{r['total']}",
+            f"<code>{bar}</code> {r['fait']}/{r['total']}",
             unsafe_allow_html=True,
         )
 
-# ─── Done screen ─────────────────────────────────────────────────────
+
+# =====================================================================
+# Ecran de fin
+# =====================================================================
 
 if len(remaining) == 0:
-    st.title("🎉 Annotation complete")
+    st.title("Annotation terminee")
     st.success(
-        f"All {n_total} stations annotated by **{annotator_name}**. "
-        f"Labels saved to `{labels_path.name}`."
+        f"L'ensemble des {n_total} stations a ete annote par "
+        f"{annotator_name}. Les labels sont sauvegardes dans "
+        f"`{labels_path.name}`."
     )
     st.markdown(
-        "**Next steps:**\n"
-        "1. Ask the second annotator to run their session\n"
-        "2. Compute inter-rater reliability:\n"
+        "**Etape suivante** : demandez au second annotateur de lancer "
+        "sa propre session, puis calculez la fiabilite inter-annotateurs :\n\n"
         "```bash\n"
         "python -m experiments.annotation.compute_reliability \\\n"
         f"    --labels1 {labels_path.name} \\\n"
-        "    --labels2 labels_<other>.csv \\\n"
+        "    --labels2 labels_<autre>.csv \\\n"
         "    --output reliability_report.json\n"
         "```"
     )
     st.stop()
 
-# ─── Current station ─────────────────────────────────────────────────
+
+# =====================================================================
+# Station courante
+# =====================================================================
 
 row = remaining.iloc[0]
 station_key = row["_key"]
 
-if station_key not in st.session_state.annotation_start_times:
-    st.session_state.annotation_start_times[station_key] = time.time()
+if station_key not in st.session_state.start_times:
+    st.session_state.start_times[station_key] = time.time()
 
 lat = float(row["lat"]) if pd.notna(row.get("lat")) else None
 lon = float(row["lon"]) if pd.notna(row.get("lon")) else None
 stratum = row.get("stratum", "unknown")
 stratum_color = STRATUM_COLORS.get(stratum, "#999")
-stratum_desc = STRATUM_DESCRIPTIONS.get(stratum, "")
+guideline = STRATUM_GUIDELINES.get(stratum, "")
 
-# ─── Header ──────────────────────────────────────────────────────────
+
+# =====================================================================
+# En-tete
+# =====================================================================
 
 st.markdown(
-    f"<div style='display:flex; align-items:center; gap:0.8rem; margin-bottom:0.6rem;'>"
-    f"<span style='font-size:1.4rem; font-weight:700;'>Station {n_done + 1} / {n_total}</span>"
-    f"<span class='stratum-badge' style='background:{stratum_color};'>{stratum}</span>"
-    f"<span style='color:#666; font-size:0.85rem;'>"
-    f"{row.get('system_id', '')} → {row.get('station_id', '')}</span>"
+    f"<div style='display:flex; align-items:center; gap:0.6rem; "
+    f"margin-bottom:0.2rem;'>"
+    f"<span style='font-size:1.15rem; font-weight:700;'>"
+    f"Station {n_done + 1} sur {n_total}</span>"
+    f"<span class='stratum-badge' style='background:{stratum_color};'>"
+    f"{stratum}</span>"
+    f"<span style='color:#888; font-size:0.8rem;'>"
+    f"{row.get('system_id', '')} / {row.get('station_id', '')}</span>"
     f"</div>",
     unsafe_allow_html=True,
 )
 
 st.markdown(
-    f"<div class='guideline-box'>"
-    f"<b>Stratum guideline:</b> {stratum_desc}"
-    f"</div>",
+    f"<div class='guideline-box'>{guideline}</div>",
     unsafe_allow_html=True,
 )
 
-# ─── Three-column layout: Map | Metadata | Flags ────────────────────
 
-col_map, col_meta, col_flags = st.columns([5, 3, 2])
+# =====================================================================
+# Deux colonnes : Carte | Metadonnees + Flags
+# =====================================================================
 
-with col_map:
-    st.markdown("#### 📍 Location & network context")
+col_left, col_right = st.columns([3, 2])
 
+with col_left:
     if lat is not None and lon is not None:
-        system_id = row.get("system_id")
-        map_data = pd.DataFrame({"lat": [lat], "lon": [lon]})
-
-        layers = []
-
-        if full_cat is not None and system_id:
-            siblings = full_cat[full_cat["system_id"] == system_id][["lat", "lon"]].dropna()
-            if len(siblings) > 1:
-                siblings = siblings.copy()
-                siblings["color"] = [[180, 200, 220, 120]] * len(siblings)
-                siblings["radius"] = 40
-                layers.append(pdk.Layer(
-                    "ScatterplotLayer",
-                    data=siblings,
-                    get_position=["lon", "lat"],
-                    get_fill_color="color",
-                    get_radius="radius",
-                    pickable=False,
-                ))
-
-        target_df = pd.DataFrame({
-            "lat": [lat], "lon": [lon],
-            "color": [[231, 76, 60, 255]],
-            "radius": [120],
-        })
-        layers.append(pdk.Layer(
-            "ScatterplotLayer",
-            data=target_df,
-            get_position=["lon", "lat"],
-            get_fill_color="color",
-            get_radius="radius",
-            pickable=False,
-        ))
-
-        view = pdk.ViewState(latitude=lat, longitude=lon, zoom=14, pitch=0)
-        st.pydeck_chart(
-            pdk.Deck(
-                map_style="mapbox://styles/mapbox/satellite-streets-v12",
-                initial_view_state=view,
-                layers=layers,
-            ),
-            use_container_width=True,
+        delta = 0.005
+        osm_embed = (
+            f"https://www.openstreetmap.org/export/embed.html?"
+            f"bbox={lon - delta},{lat - delta},{lon + delta},{lat + delta}"
+            f"&layer=cyclemap&marker={lat},{lon}"
         )
+        st.components.v1.iframe(osm_embed, height=420, scrolling=False)
+
+        osm_url = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=18/{lat}/{lon}&layers=C"
+        cyclosm_url = f"https://www.cyclosm.org/#map=17/{lat}/{lon}/cyclosm"
+        streetview_url = f"https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={lat},{lon}"
+        gmaps_url = f"https://www.google.com/maps/@{lat},{lon},18z"
+        osm_query_url = f"https://www.openstreetmap.org/query?lat={lat}&lon={lon}#map=18/{lat}/{lon}"
 
         st.markdown(
-            f"🌍 [Google Maps](https://www.google.com/maps/@{lat},{lon},18z) · "
-            f"[Street View](https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={lat},{lon}) · "
-            f"[OpenStreetMap](https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=18)",
+            f"<div class='links-bar'>"
+            f"<a class='primary' href='{streetview_url}' target='_blank'>Street View (verification terrain)</a>"
+            f"<a href='{osm_url}' target='_blank'>OSM plein ecran</a>"
+            f"<a href='{cyclosm_url}' target='_blank'>CyclOSM (pistes cyclables)</a>"
+            f"<a href='{osm_query_url}' target='_blank'>Identifier les objets OSM</a>"
+            f"<a href='{gmaps_url}' target='_blank'>Google Maps</a>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+        st.caption(
+            "La carte affiche la couche CycleMap (OpenCycleMap) avec les "
+            "amenagements cyclables. Le marqueur rouge indique la station "
+            "a evaluer. Utilisez Street View pour verifier la presence "
+            "physique de bornes velo."
         )
     else:
-        st.warning("No coordinates available.")
+        st.warning("Coordonnees indisponibles pour cette station.")
 
-with col_meta:
-    st.markdown("#### 📋 Metadata")
-    meta = {
-        "Operator": row.get("operator_name", "—"),
-        "City": row.get("city", "—"),
-        "Station type": row.get("station_type", "—"),
-        "Capacity (raw)": row.get("capacity", "—"),
-        "Confidence": row.get("audit_confidence", "—"),
-        "Latitude": f"{lat:.6f}" if lat else "—",
-        "Longitude": f"{lon:.6f}" if lon else "—",
-    }
-    for k, v in meta.items():
-        val = str(v) if pd.notna(v) else "—"
-        st.markdown(f"**{k}:** `{val}`")
 
-with col_flags:
-    st.markdown("#### 🚩 Audit flags")
-    for i in range(1, 8):
-        col_name = f"flag_A{i}"
-        is_on = bool(row.get(col_name, False)) if col_name in row.index else False
-        css_class = "flag-on" if is_on else "flag-off"
-        label = f"A{i}"
-        tooltip = FLAG_NAMES.get(f"A{i}", "")
+with col_right:
+    st.markdown("**Metadonnees GBFS**")
+
+    meta_pairs = [
+        ("Operateur", row.get("operator_name")),
+        ("Ville", row.get("city")),
+        ("Type declare", row.get("station_type")),
+        ("Capacite brute", row.get("capacity")),
+        ("Confiance audit", row.get("audit_confidence")),
+        ("Coordonnees", f"{lat:.5f}, {lon:.5f}" if lat and lon else None),
+    ]
+    for label, val in meta_pairs:
+        v = str(val) if pd.notna(val) else "---"
         st.markdown(
-            f"<span class='flag-chip {css_class}' title='{tooltip}'>"
-            f"{label}</span> "
-            f"<span style='font-size:0.78rem; color:#666;'>{tooltip}</span>",
+            f"<div><span class='meta-label'>{label}</span><br>"
+            f"<span class='meta-value'>{v}</span></div>",
             unsafe_allow_html=True,
         )
 
-# ─── Annotation form ─────────────────────────────────────────────────
+    st.markdown("")
+    st.markdown("**Verdict du pipeline (flags A1--A7)**")
+    any_flag = False
+    for i in range(1, 8):
+        col_name = f"flag_A{i}"
+        is_on = bool(row.get(col_name, False)) if col_name in row.index else False
+        if is_on:
+            any_flag = True
+        css = "flag-on" if is_on else "flag-off"
+        marker = "ACTIF" if is_on else "---"
+        desc = FLAG_LABELS.get(f"A{i}", "")
+        st.markdown(
+            f"<div class='flag-row'>"
+            f"<span class='{css}'>A{i} [{marker}]</span> "
+            f"<span style='color:#999; font-size:0.76rem;'>{desc}</span>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+    if not any_flag:
+        st.markdown(
+            "<div style='color:#27ae60; font-size:0.84rem; "
+            "font-weight:600; margin-top:0.3rem;'>"
+            "Aucun flag declenche -- le pipeline considere cette station "
+            "comme propre.</div>",
+            unsafe_allow_html=True,
+        )
+
+
+# =====================================================================
+# Formulaire d'annotation
+# =====================================================================
 
 st.markdown("---")
-st.markdown("### ✏️ Your assessment")
+st.markdown("### Votre evaluation")
 
-q_col1, q_col2 = st.columns(2)
+qa, qb = st.columns(2)
 
-with q_col1:
+with qa:
     a_q1 = st.radio(
-        "**Q1.** Is this a bike-sharing station?",
-        ["yes", "no", "indeterminate"],
+        "**Q1.** Cette station fait-elle partie d'un reseau de velos en libre-service ?",
+        ["oui", "non", "indetermine"],
         index=None,
         key="q1",
-        help="Check the vehicle type. Bicycles / e-bikes = yes. Cars / scooters only = no.",
+        help=(
+            "Repondez 'oui' si le systeme concerne des velos ou VAE. "
+            "Repondez 'non' s'il s'agit exclusivement de voitures "
+            "(autopartage) ou de trottinettes sans aucun velo. "
+            "Repondez 'indetermine' si vous ne pouvez pas trancher."
+        ),
     )
 
     a_q3 = st.radio(
-        "**Q3.** Does this station physically exist at these coordinates?",
-        ["yes", "no", "indeterminate"],
+        "**Q3.** Cette station existe-t-elle physiquement a ces coordonnees ?",
+        ["oui", "non", "indetermine"],
         index=None,
         key="q3",
-        help="Use satellite imagery or Street View. Look for bike docks, racks, or signage.",
+        help=(
+            "Consultez Street View ou l'imagerie satellite. Cherchez "
+            "des bornes, des arceaux, un totem ou de la signaletique "
+            "velo. Si rien n'est visible et que l'imagerie est recente, "
+            "repondez 'non'."
+        ),
     )
 
     a_q5 = st.radio(
-        "**Q5.** Overall verdict:",
-        ["clean", "anomaly confirmed", "pipeline false positive", "indeterminate"],
+        "**Q5.** Verdict global :",
+        [
+            "propre",
+            "anomalie confirmee",
+            "faux positif du pipeline",
+            "indetermine",
+        ],
         index=None,
         key="q5",
+        help=(
+            "Propre : la station est legitime et correctement classee. "
+            "Anomalie confirmee : le pipeline a raison de la signaler. "
+            "Faux positif : le pipeline la signale a tort. "
+            "Indetermine : impossible de trancher avec les elements disponibles."
+        ),
     )
 
-with q_col2:
+with qb:
     a_q2 = st.radio(
-        "**Q2.** Does the declared capacity reflect a physical dock count?",
-        ["yes", "no", "NaN", "indeterminate"],
+        "**Q2.** La capacite declaree correspond-elle a un nombre physique de bornes ?",
+        ["oui", "non", "NaN", "indetermine"],
         index=None,
         key="q2",
-        help="A real dock count (e.g. 20 slots) = yes. Placeholder (e.g. 100 everywhere) = no. Missing = NaN.",
+        help=(
+            "Oui : la valeur (ex : 20) correspond a un nombre reel "
+            "d'emplacements physiques. Non : c'est un placeholder "
+            "(ex : 100 partout, ou un estimateur statistique). "
+            "NaN : le champ est vide dans le flux GBFS."
+        ),
     )
 
     a_q4 = st.radio(
-        "**Q4.** Are these coordinates within the network's operating area?",
-        ["yes", "no"],
+        "**Q4.** Ces coordonnees sont-elles dans le perimetre raisonnable du reseau ?",
+        ["oui", "non"],
         index=None,
         key="q4",
-        help="Is this station geographically consistent with its siblings (shown in grey on the map)?",
+        help=(
+            "Regardez la carte : la station est-elle coherente avec "
+            "le reste du reseau (les autres stations du meme systeme "
+            "sont visibles sur la couche CycleMap), ou est-elle "
+            "completement isolee / dans un autre pays ?"
+        ),
     )
 
     notes = st.text_area(
-        "Notes (optional)",
+        "Remarques (facultatif)",
         value="",
-        placeholder="Street View date, construction, unclear imagery...",
+        placeholder=(
+            "Observations utiles : date de l'imagerie Street View, "
+            "station en travaux, bornes retirees, doute sur le type "
+            "de vehicule..."
+        ),
         key="notes",
         height=100,
     )
 
-# ─── Save / Skip ─────────────────────────────────────────────────────
+
+# =====================================================================
+# Boutons
+# =====================================================================
 
 all_answered = all([a_q1, a_q2, a_q3, a_q4, a_q5])
 
-col_a, col_b, col_c = st.columns([2, 1, 1])
+btn_save, btn_skip = st.columns([2, 1])
 
-with col_a:
+with btn_save:
     if st.button(
-        "✅  Save & Next",
+        "Enregistrer et passer a la suivante",
         type="primary",
         disabled=not all_answered,
         use_container_width=True,
     ):
-        elapsed = time.time() - st.session_state.annotation_start_times.get(station_key, time.time())
-
+        elapsed = time.time() - st.session_state.start_times.get(
+            station_key, time.time()
+        )
         new_row = {
             "system_id": row["system_id"],
             "station_id": row["station_id"],
@@ -454,69 +562,48 @@ with col_a:
             "duration_s": round(elapsed, 1),
             "annotated_at": datetime.now(timezone.utc).isoformat(),
         }
-
         if labels_path.exists():
             existing = pd.read_csv(labels_path)
-            updated = pd.concat([existing, pd.DataFrame([new_row])], ignore_index=True)
+            updated = pd.concat(
+                [existing, pd.DataFrame([new_row])], ignore_index=True
+            )
         else:
             updated = pd.DataFrame([new_row])
         updated.to_csv(labels_path, index=False)
-
-        st.session_state.annotation_start_times.pop(station_key, None)
+        st.session_state.start_times.pop(station_key, None)
         st.rerun()
 
-with col_b:
-    if st.button("⏭️  Skip", use_container_width=True):
+with btn_skip:
+    if st.button("Passer cette station", use_container_width=True):
         skip_row = {
             "system_id": row["system_id"],
             "station_id": row["station_id"],
             "stratum": stratum,
             "lat": lat,
             "lon": lon,
-            "Q1_is_bikeshare": "skipped",
-            "Q2_capacity_physical": "skipped",
-            "Q3_exists_at_coords": "skipped",
-            "Q4_within_perimeter": "skipped",
+            "Q1_is_bikeshare": "passe",
+            "Q2_capacity_physical": "passe",
+            "Q3_exists_at_coords": "passe",
+            "Q4_within_perimeter": "passe",
             "Q5_verdict": "skipped",
             "annotator": annotator_id,
-            "notes": "SKIPPED",
+            "notes": "",
             "duration_s": 0,
             "annotated_at": datetime.now(timezone.utc).isoformat(),
         }
         if labels_path.exists():
             existing = pd.read_csv(labels_path)
-            updated = pd.concat([existing, pd.DataFrame([skip_row])], ignore_index=True)
+            updated = pd.concat(
+                [existing, pd.DataFrame([skip_row])], ignore_index=True
+            )
         else:
             updated = pd.DataFrame([skip_row])
         updated.to_csv(labels_path, index=False)
-        st.session_state.annotation_start_times.pop(station_key, None)
+        st.session_state.start_times.pop(station_key, None)
         st.rerun()
 
-with col_c:
-    if n_done > 0 and st.button("📊  My stats", use_container_width=True):
-        st.session_state["show_stats"] = not st.session_state.get("show_stats", False)
-
 if not all_answered:
-    st.caption("Answer all 5 questions to enable Save.")
-
-# ─── Stats panel ─────────────────────────────────────────────────────
-
-if st.session_state.get("show_stats", False) and labels_path.exists():
-    st.markdown("---")
-    st.markdown("### 📊 Session analytics")
-    stats_df = pd.read_csv(labels_path)
-    non_skip = stats_df[stats_df["Q5_verdict"] != "skipped"]
-
-    s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Annotated", len(non_skip))
-    s2.metric("Skipped", len(stats_df) - len(non_skip))
-    if "duration_s" in non_skip.columns and len(non_skip) > 0:
-        s3.metric("Median time", f"{non_skip['duration_s'].median():.0f}s")
-        s4.metric("Total time", f"{non_skip['duration_s'].sum() / 60:.0f} min")
-
-    if len(non_skip) > 0:
-        verdict_counts = non_skip["Q5_verdict"].value_counts()
-        st.markdown("**Verdict distribution:**")
-        for v, c in verdict_counts.items():
-            pct = 100 * c / len(non_skip)
-            st.markdown(f"- **{v}**: {c} ({pct:.0f}%)")
+    st.caption(
+        "Repondez aux cinq questions ci-dessus pour activer "
+        "le bouton Enregistrer."
+    )
