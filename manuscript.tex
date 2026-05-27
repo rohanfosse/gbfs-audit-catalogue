@@ -1753,43 +1753,26 @@ France; extension to overseas territories and other European
 jurisdictions requires revisiting thresholds, in particular the
 macro-regional surface threshold and the geofilter bounds.
 
-\textbf{L2 -- Static versus dynamic.} The v1.0 release audits
-\texttt{station\_information} only; auditing
-\texttt{station\_status} (real-time availability) requires a distinct
-protocol. The most consequential limitation that follows
-is the \emph{zombie-station} risk: an operator that has
-physically dismantled a station but has not yet pruned the
-corresponding \texttt{station\_information} entry will leave a
-ghost record that our static audit certifies as compliant,
-because the seven A1--A7 detectors all operate on the published
-schema and have no operator-side observation that the dock no
-longer physically exists. Downstream consumers of the Audit
-Catalogue who depend on station-presence (demand modelling,
-graph-based neural networks, accessibility scoring) should
-cross-check the static catalogue against a recent
-\texttt{station\_status} snapshot, treating any
-\texttt{station\_information} entry whose status feed has been
-quietly stale for more than a documented retention window as a
-zombie candidate. To bridge this gap, experiment
-E4 now ships with a fully operational 14-day collection and
-classification pipeline (\texttt{experiments/xp1\_dynamic\_audit/}).
-The protocol polls \texttt{station\_status} every 15\,minutes and,
-for each station~$s$, computes the normalised Shannon entropy of the
-discretised availability time series:
-\begin{equation}\label{eq:entropy}
-  H(s) = -\sum_{k} p_k \log_2 p_k \;\big/\; \log_2 K
-\end{equation}
-where $p_k$ is the empirical frequency of availability level $k$ over
-the observation window. A station is classified \textsc{zombie}
-when $H(s) < 0.01$ and \texttt{last\_reported} is stale by more
-than 72\,h; \textsc{intermittent} when the fraction of unchanged
-consecutive snapshots exceeds $0.90$ but $H(s) \ge 0.01$;
-\textsc{decommissioned} when it appears in
-\texttt{station\_information} but is absent from every
-\texttt{station\_status} snapshot; and \textsc{live} otherwise.
-A 2-day pilot already detected candidate dynamic anomalies on
-$12.9\,\%$ of monitored stations; the full 14-day run is the
-immediate next priority.
+\textbf{L2 -- Static versus dynamic.} The present audit is
+deliberately scoped to the static \texttt{station\_information}
+document. Auditing \texttt{station\_status} (real-time availability)
+is a distinct research question that requires longitudinal data
+collection and a different analytical framework. The most
+consequential limitation that follows is the \emph{zombie-station}
+risk: an operator that has physically dismantled a station but has
+not yet pruned the corresponding \texttt{station\_information} entry
+will leave a ghost record that our static audit certifies as
+compliant, because the seven A1--A7 detectors all operate on the
+published schema. Downstream consumers of the Audit Catalogue who
+depend on station-presence should cross-check against a recent
+\texttt{station\_status} snapshot, treating any entry whose status
+feed has been stale beyond a documented retention window as a zombie
+candidate. A 2-day pilot (experiment E4) already detected candidate
+dynamic anomalies on $12.9\,\%$ of monitored stations, and a
+fully operational collection and classification pipeline ships with
+the repository (\texttt{experiments/xp1\_dynamic\_audit/}); the
+formal dynamic extension is planned as a self-contained follow-up
+study.
 
 \textbf{L3 -- Free-floating static versus dynamic scope.}
 The seven-class taxonomy is applied to free-floating entries as
@@ -1893,7 +1876,7 @@ E5 & European generalisation (live audit, 6 tech stacks) & L1                  &
 E6 & Free-floating-native protocol              & L3                          & Planned 2027-Q2 \\
 \textbf{E7} & \textbf{A4\,v2 topology-aware ablation} & \textbf{Geospatial isotropy bias} & \textbf{$\checkmark$ (Sec.~\ref{secAblation})} \\
 \textbf{E8} & \textbf{Leave-one-operator-out CV}       & \textbf{Overfitting (H3)}          & \textbf{$\checkmark$ (Sec.~\ref{secLOOO})} \\
-\textbf{E9} & \textbf{Shannon-entropy zombie detection} & \textbf{Static/dynamic gap (L2)}  & \textbf{Protocol ready} \\
+\textbf{E9} & \textbf{Dynamic station\_status audit} & \textbf{Static/dynamic gap (L2)}  & \textbf{Future work (pipeline shipped)} \\
 \bottomrule
 \end{tabular}
 \end{table}
