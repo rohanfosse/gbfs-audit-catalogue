@@ -1,0 +1,112 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* === Academic navy palette overriding the cayman theme ============== */
+
+$navy: #1A6FBF;
+$navy-dark: #15538f;
+$ink: #1A2332;
+$muted: #5a7a96;
+$amber: #E08E0B;
+$line: #e4ecf3;
+
+/* Header banner */
+.page-header {
+  background-color: $navy-dark;
+  background-image: linear-gradient(135deg, #123f6d 0%, #1A6FBF 58%, #2a8fd6 100%);
+  padding: 3.25rem 1rem;
+}
+.project-name { font-weight: 800; letter-spacing: -0.02em; }
+.project-tagline { opacity: 0.95; font-weight: 400; }
+.page-header .btn { border-radius: 7px; }
+
+/* Content */
+.main-content {
+  max-width: 62rem;
+
+  h1, h2, h3 { color: $ink; }
+  h2 {
+    border-bottom: 2px solid $line;
+    padding-bottom: 0.3rem;
+    margin-top: 2.3rem;
+    font-weight: 700;
+  }
+  h3 { color: $navy; font-weight: 700; }
+  a { color: $navy; }
+  table th { background: #eaf1fb; color: $navy; }
+}
+
+/* Badge row */
+.badges { margin: 0.2rem 0 1.1rem; }
+.badges img { margin: 0 0.3rem 0.4rem 0; vertical-align: middle; }
+
+/* Call-to-action buttons */
+.cta { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 1rem 0 1.6rem; }
+.cta a {
+  display: inline-block; padding: 0.55rem 1.05rem; border-radius: 7px;
+  font-weight: 600; text-decoration: none; font-size: 0.92rem;
+  border: 1px solid $navy; color: $navy; background: #fff;
+  transition: background 0.15s, color 0.15s;
+}
+.cta a:hover { background: #eaf1fb; text-decoration: none; }
+.cta a.primary { background: $navy; color: #fff; }
+.cta a.primary:hover { background: $navy-dark; }
+
+/* Stat cards */
+.stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.7rem; margin: 1.4rem 0;
+}
+.stat {
+  border: 1px solid $line; border-radius: 10px; padding: 0.9rem 0.8rem;
+  background: linear-gradient(180deg, #f8fafd, #ffffff); text-align: center;
+}
+.stat .num {
+  display: block; font-size: 1.65rem; font-weight: 800; color: $navy;
+  line-height: 1.1; font-variant-numeric: tabular-nums;
+}
+.stat .lbl {
+  display: block; font-size: 0.72rem; color: $muted; text-transform: uppercase;
+  letter-spacing: 0.05em; margin-top: 0.35rem;
+}
+
+/* Taxonomy grid */
+.tax {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  gap: 0.7rem; margin: 1.2rem 0;
+}
+.cls {
+  border: 1px solid $line; border-left: 4px solid $navy; border-radius: 8px;
+  padding: 0.7rem 0.9rem; background: #fff;
+}
+.cls.warn { border-left-color: $amber; }
+.cls .code {
+  font-weight: 800; color: $navy; font-family: ui-monospace, Menlo, monospace;
+  margin-right: 0.4rem;
+}
+.cls.warn .code { color: $amber; }
+.cls .nm { font-weight: 700; color: $ink; font-size: 0.95rem; }
+.cls .sig { color: $muted; font-size: 0.82rem; margin-top: 0.25rem; line-height: 1.45; }
+.cls .kind {
+  float: right; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: $muted; border: 1px solid $line; border-radius: 20px; padding: 0.05rem 0.5rem;
+}
+
+/* Figures */
+figure { margin: 1.5rem 0; }
+figure img {
+  width: 100%; border: 1px solid $line; border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(26, 35, 50, 0.07);
+}
+figure figcaption {
+  font-size: 0.82rem; color: $muted; margin-top: 0.55rem; text-align: center;
+  line-height: 1.5;
+}
+
+/* Highlight note */
+.note {
+  background: #f4f8fc; border-left: 3px solid $navy; padding: 0.75rem 1.05rem;
+  border-radius: 0 6px 6px 0; color: #2c3e50; font-size: 0.92rem; margin: 1.2rem 0;
+}
