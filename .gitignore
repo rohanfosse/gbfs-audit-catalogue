@@ -40,3 +40,8 @@ Thumbs.db
 
 # Local backups
 *.bak
+
+# Annotation local data (SQLite store + per-annotator label exports)
+experiments/annotation/annotations.db
+experiments/annotation/labels_*.csv
+experiments/annotation/labels_v2_*.csv
