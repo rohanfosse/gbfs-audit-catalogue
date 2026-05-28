@@ -83,6 +83,9 @@ experiments/
 ├── config/              Hyperparameters (defaults.yaml)
 └── run_all.py           Orchestrator for XP2 + XP3
 catalogue/               Certified parquet + per-system audit summary
+├── metadata/            FAIR manifests (JSON Schema, Frictionless,
+│                        DCAT-AP, Croissant) — generated, validated
+scripts/                 Figure + metadata generators
 paper/                   Manuscript LaTeX source + 10 figures
 notebooks/               8 reproducible recipes + reviewer demo
 app/                     Streamlit dashboard (gbfs-audit.streamlit.app)
@@ -100,6 +103,7 @@ tests/                   36 tests, Python 3.10–3.12
 | Reproducible recipes | [`notebooks/catalogue_recipes.ipynb`](notebooks/catalogue_recipes.ipynb) |
 | Experiment reproduction | [`notebooks/xp_reviewer_demo.ipynb`](notebooks/xp_reviewer_demo.ipynb) |
 | Human validation protocol | [`experiments/annotation/PROTOCOL.md`](experiments/annotation/PROTOCOL.md) |
+| FAIR manifests | [`catalogue/metadata/`](catalogue/metadata/) (JSON Schema · Frictionless · DCAT-AP · Croissant) |
 | Docker reproduction | `docker build -t gbfs-audit:1.0 . && docker run --rm gbfs-audit:1.0` |
 | Tests | `pytest` (36 tests, Python 3.10–3.12) |
 
@@ -138,4 +142,6 @@ GTFS aggregator) are listed in `LICENSE-DATA`.
 **Gaël Pallares** — CESI LINEACT (EA 7527), Montpellier.
 
 Issues and contributions are welcome on the
-[issue tracker](https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues).
+[issue tracker](https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues);
+see [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md).

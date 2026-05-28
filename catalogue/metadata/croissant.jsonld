@@ -1,0 +1,771 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "cr": "http://mlcommons.org/croissant/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileObject": "cr:fileObject",
+    "fileProperty": "cr:fileProperty",
+    "format": "cr:format",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "repeated": "cr:repeated",
+    "sc": "https://schema.org/",
+    "source": "cr:source",
+    "subField": "cr:subField"
+  },
+  "@type": "sc:Dataset",
+  "conformsTo": "http://mlcommons.org/croissant/1.0",
+  "name": "gbfs-audit-catalogue",
+  "description": "A certified, anomaly-flagged reference dataset of 46,307 bike-sharing stations across 123 French operators, with per-row audit verdicts (seven data-quality classes A1–A7) and contextual enrichment from INSEE, BAAC, BD TOPO, BD ALTI and the national GTFS aggregator.",
+  "version": "1.0.1",
+  "datePublished": "2026-05-13",
+  "url": "https://gbfs-audit.streamlit.app",
+  "license": "https://opendatacommons.org/licenses/odbl/1-0/",
+  "citeAs": "Fossé, R. & Pallares, G. (2026). GBFS Audit Catalogue v1.0. Zenodo. https://doi.org/10.5281/zenodo.20125460",
+  "keywords": [
+    "GBFS",
+    "bike-sharing",
+    "open mobility data",
+    "data quality",
+    "FAIR",
+    "standards compliance",
+    "reproducibility",
+    "smart city"
+  ],
+  "creator": [
+    {
+      "@type": "sc:Person",
+      "name": "Fossé, Rohan"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "Pallares, Gaël"
+    }
+  ],
+  "distribution": [
+    {
+      "@type": "cr:FileObject",
+      "@id": "catalogue-parquet",
+      "name": "stations_gold_standard_final.parquet",
+      "description": "Certified catalogue in Apache Parquet.",
+      "contentUrl": "https://zenodo.org/records/20125460/files/stations_gold_standard_final.parquet",
+      "encodingFormat": "application/vnd.apache.parquet",
+      "contentSize": "6590752 B",
+      "sha256": "a38e95a8ad525ef3a9a2d78ac9d7c14c57df276465e3e902874f32a0760b1c59"
+    }
+  ],
+  "recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "@id": "stations",
+      "name": "stations",
+      "description": "One record per certified station.",
+      "field": [
+        {
+          "@type": "cr:Field",
+          "@id": "stations/uid",
+          "name": "uid",
+          "description": "Audit Catalogue primary key (stable per certified station).",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "uid"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/system_id",
+          "name": "system_id",
+          "description": "Operator-system identifier.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "system_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/city",
+          "name": "city",
+          "description": "Normalised city name.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "city"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/system_name",
+          "name": "system_name",
+          "description": "Operator-system label as published in the feed.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "system_name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/source",
+          "name": "source",
+          "description": "Feed URL or canonical-catalogue source pointer.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "source"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/station_id",
+          "name": "station_id",
+          "description": "GBFS native station identifier.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "station_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/station_name",
+          "name": "station_name",
+          "description": "GBFS station name.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "station_name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/lat",
+          "name": "lat",
+          "description": "Geofiltered WGS84 latitude (decimal degrees).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "lat"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/lon",
+          "name": "lon",
+          "description": "Geofiltered WGS84 longitude (decimal degrees).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "lon"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/capacity",
+          "name": "capacity",
+          "description": "Raw declared dock capacity (may be a placeholder or null).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "capacity"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/address",
+          "name": "address",
+          "description": "GBFS-declared street address, when present.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "address"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/region_id",
+          "name": "region_id",
+          "description": "Administrative region identifier, when present.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "region_id"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/n_stations_system",
+          "name": "n_stations_system",
+          "description": "Total number of stations in the parent system.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "n_stations_system"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/fetched_at",
+          "name": "fetched_at",
+          "description": "UTC timestamp of the audited feed snapshot.",
+          "dataType": "sc:Date",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "fetched_at"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/elevation_m",
+          "name": "elevation_m",
+          "description": "Ground elevation in metres (IGN BD ALTI).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "elevation_m"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/topography_roughness_index",
+          "name": "topography_roughness_index",
+          "description": "Local relief amplitude around the station.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "topography_roughness_index"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/infra_cyclable_km",
+          "name": "infra_cyclable_km",
+          "description": "Cycle-lane linear within a 300 m buffer (IGN BD TOPO), km.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "infra_cyclable_km"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/infra_cyclable_pct",
+          "name": "infra_cyclable_pct",
+          "description": "Share of dedicated cycle right-of-way in the buffer.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "infra_cyclable_pct"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/baac_accidents_cyclistes",
+          "name": "baac_accidents_cyclistes",
+          "description": "Severe cyclist-crash count within 500 m over 5 years (ONISR BAAC).",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "baac_accidents_cyclistes"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/gtfs_heavy_stops_300m",
+          "name": "gtfs_heavy_stops_300m",
+          "description": "Heavy-transit stops within 300 m (national GTFS aggregator).",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "gtfs_heavy_stops_300m"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/gtfs_stops_within_300m_pct",
+          "name": "gtfs_stops_within_300m_pct",
+          "description": "Share of accessible heavy-transit stops in the buffer.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "gtfs_stops_within_300m_pct"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/code_commune",
+          "name": "code_commune",
+          "description": "INSEE commune code.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "code_commune"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/commune_name",
+          "name": "commune_name",
+          "description": "INSEE commune label.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "commune_name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/revenu_median_uc",
+          "name": "revenu_median_uc",
+          "description": "INSEE Filosofi median disposable income per consumption unit.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "revenu_median_uc"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/gini_revenu",
+          "name": "gini_revenu",
+          "description": "Local Gini index of income.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "gini_revenu"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/revenu_d1",
+          "name": "revenu_d1",
+          "description": "First-decile income (INSEE Filosofi).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "revenu_d1"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/ecart_interquar",
+          "name": "ecart_interquar",
+          "description": "Interquartile income spread (INSEE Filosofi).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "ecart_interquar"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/part_menages_voit0",
+          "name": "part_menages_voit0",
+          "description": "Share of car-less households (INSEE).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "part_menages_voit0"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/part_velo_travail",
+          "name": "part_velo_travail",
+          "description": "Share of commuting by bicycle (INSEE).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "part_velo_travail"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/station_type",
+          "name": "station_type",
+          "description": "Audited station type: docked_bike, free_floating or carsharing.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "station_type"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/capacity_raw",
+          "name": "capacity_raw",
+          "description": "Raw GBFS capacity preserved verbatim (NaN/placeholders kept).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "capacity_raw"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/capacity_audited",
+          "name": "capacity_audited",
+          "description": "Post-audit capacity; NaN for non-dock types.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "capacity_audited"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/flag_A1",
+          "name": "flag_A1",
+          "description": "Structural error A1: out-of-domain inclusion (carsharing under a bike schema).",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "flag_A1"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/flag_A2",
+          "name": "flag_A2",
+          "description": "Structural error A2: placeholder capacity constant across a system.",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "flag_A2"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/flag_A3",
+          "name": "flag_A3",
+          "description": "Structural error A3: structural over-capacity (free-floating anchor).",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "flag_A3"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/flag_A4",
+          "name": "flag_A4",
+          "description": "Structural error A4: topology-aware geospatial outlier (HDBSCAN + spectral).",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "flag_A4"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/flag_A5",
+          "name": "flag_A5",
+          "description": "Structural error A5: out-of-perimeter coverage (bbox > 50,000 km²).",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "flag_A5"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/flag_A6",
+          "name": "flag_A6",
+          "description": "Semantic warning A6: zero-capacity dock.",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "flag_A6"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/flag_A7",
+          "name": "flag_A7",
+          "description": "Semantic warning A7: null-capacity field.",
+          "dataType": "sc:Boolean",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "flag_A7"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/operator_name",
+          "name": "operator_name",
+          "description": "Normalised operator label.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "operator_name"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/audit_confidence",
+          "name": "audit_confidence",
+          "description": "Per-row audit confidence: high, medium or low.",
+          "dataType": "sc:Text",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "audit_confidence"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/dist_to_nearest_station_m",
+          "name": "dist_to_nearest_station_m",
+          "description": "Intra-system distance to nearest station (metres).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "dist_to_nearest_station_m"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/n_stations_within_500m",
+          "name": "n_stations_within_500m",
+          "description": "Intra-system station count within 500 m.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "n_stations_within_500m"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/n_stations_within_1km",
+          "name": "n_stations_within_1km",
+          "description": "Intra-system station count within 1 km.",
+          "dataType": "sc:Integer",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "n_stations_within_1km"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/nearest_system_dist_m",
+          "name": "nearest_system_dist_m",
+          "description": "Distance to the nearest station of a different system (metres).",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "nearest_system_dist_m"
+            }
+          }
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "stations/catchment_density_per_km2",
+          "name": "catchment_density_per_km2",
+          "description": "Stations per km² within a 1 km buffer.",
+          "dataType": "sc:Float",
+          "source": {
+            "fileObject": {
+              "@id": "catalogue-parquet"
+            },
+            "extract": {
+              "column": "catchment_density_per_km2"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

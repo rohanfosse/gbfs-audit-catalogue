@@ -1,0 +1,62 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "spdx": "http://spdx.org/rdf/terms#"
+  },
+  "@type": "dcat:Dataset",
+  "dct:title": "GBFS Audit Catalogue",
+  "dct:description": "A certified, anomaly-flagged reference dataset of 46,307 bike-sharing stations across 123 French operators, with per-row audit verdicts (seven data-quality classes A1–A7) and contextual enrichment from INSEE, BAAC, BD TOPO, BD ALTI and the national GTFS aggregator.",
+  "dct:identifier": "https://doi.org/10.5281/zenodo.20125460",
+  "dct:issued": "2026-05-13",
+  "dct:modified": "2026-05-28",
+  "dct:publisher": {
+    "@type": "foaf:Organization",
+    "foaf:name": "CESI LINEACT (EA 7527)"
+  },
+  "dct:creator": [
+    {
+      "@type": "foaf:Person",
+      "foaf:name": "Fossé, Rohan"
+    },
+    {
+      "@type": "foaf:Person",
+      "foaf:name": "Pallares, Gaël"
+    }
+  ],
+  "dct:license": {
+    "@id": "https://opendatacommons.org/licenses/odbl/1-0/"
+  },
+  "dcat:keyword": [
+    "GBFS",
+    "bike-sharing",
+    "open mobility data",
+    "data quality",
+    "FAIR",
+    "standards compliance",
+    "reproducibility",
+    "smart city"
+  ],
+  "dcat:landingPage": {
+    "@id": "https://gbfs-audit.streamlit.app"
+  },
+  "dcat:distribution": [
+    {
+      "@type": "dcat:Distribution",
+      "dct:title": "Certified catalogue (Apache Parquet)",
+      "dcat:downloadURL": {
+        "@id": "https://zenodo.org/records/20125460/files/stations_gold_standard_final.parquet"
+      },
+      "dcat:mediaType": "application/vnd.apache.parquet",
+      "dcat:byteSize": 6590752,
+      "spdx:checksum": {
+        "spdx:algorithm": "spdx:checksumAlgorithm_sha256",
+        "spdx:checksumValue": "a38e95a8ad525ef3a9a2d78ac9d7c14c57df276465e3e902874f32a0760b1c59"
+      },
+      "dct:license": {
+        "@id": "https://opendatacommons.org/licenses/odbl/1-0/"
+      }
+    }
+  ]
+}

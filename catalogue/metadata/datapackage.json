@@ -1,0 +1,423 @@
+{
+  "profile": "tabular-data-package",
+  "name": "gbfs-audit-catalogue",
+  "id": "https://doi.org/10.5281/zenodo.20125460",
+  "title": "GBFS Audit Catalogue",
+  "description": "A certified, anomaly-flagged reference dataset of 46,307 bike-sharing stations across 123 French operators, with per-row audit verdicts (seven data-quality classes A1–A7) and contextual enrichment from INSEE, BAAC, BD TOPO, BD ALTI and the national GTFS aggregator.",
+  "version": "1.0.1",
+  "created": "2026-05-13",
+  "homepage": "https://gbfs-audit.streamlit.app",
+  "keywords": [
+    "GBFS",
+    "bike-sharing",
+    "open mobility data",
+    "data quality",
+    "FAIR",
+    "standards compliance",
+    "reproducibility",
+    "smart city"
+  ],
+  "licenses": [
+    {
+      "name": "ODbL-1.0",
+      "path": "https://opendatacommons.org/licenses/odbl/1-0/",
+      "title": "Open Database License (ODbL) v1.0"
+    }
+  ],
+  "contributors": [
+    {
+      "title": "Fossé, Rohan",
+      "organization": "CESI École d'Ingénieurs, Montpellier, France",
+      "role": "author"
+    },
+    {
+      "title": "Pallares, Gaël",
+      "organization": "CESI LINEACT (EA 7527), Montpellier, France",
+      "role": "author"
+    }
+  ],
+  "resources": [
+    {
+      "name": "stations_gold_standard_final",
+      "path": "../stations_gold_standard_final.parquet",
+      "format": "parquet",
+      "mediatype": "application/vnd.apache.parquet",
+      "profile": "data-resource",
+      "bytes": 6590752,
+      "hash": "sha256:a38e95a8ad525ef3a9a2d78ac9d7c14c57df276465e3e902874f32a0760b1c59",
+      "schema": {
+        "fields": [
+          {
+            "name": "uid",
+            "type": "string",
+            "description": "Audit Catalogue primary key (stable per certified station).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "system_id",
+            "type": "string",
+            "description": "Operator-system identifier.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "city",
+            "type": "string",
+            "description": "Normalised city name.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "system_name",
+            "type": "string",
+            "description": "Operator-system label as published in the feed.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "Feed URL or canonical-catalogue source pointer.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "station_id",
+            "type": "string",
+            "description": "GBFS native station identifier.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "station_name",
+            "type": "string",
+            "description": "GBFS station name.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "lat",
+            "type": "number",
+            "description": "Geofiltered WGS84 latitude (decimal degrees).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "lon",
+            "type": "number",
+            "description": "Geofiltered WGS84 longitude (decimal degrees).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "capacity",
+            "type": "number",
+            "description": "Raw declared dock capacity (may be a placeholder or null).",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "address",
+            "type": "string",
+            "description": "GBFS-declared street address, when present.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "region_id",
+            "type": "string",
+            "description": "Administrative region identifier, when present.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "n_stations_system",
+            "type": "number",
+            "description": "Total number of stations in the parent system.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "fetched_at",
+            "type": "datetime",
+            "description": "UTC timestamp of the audited feed snapshot.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "elevation_m",
+            "type": "number",
+            "description": "Ground elevation in metres (IGN BD ALTI).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "topography_roughness_index",
+            "type": "number",
+            "description": "Local relief amplitude around the station.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "infra_cyclable_km",
+            "type": "number",
+            "description": "Cycle-lane linear within a 300 m buffer (IGN BD TOPO), km.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "infra_cyclable_pct",
+            "type": "number",
+            "description": "Share of dedicated cycle right-of-way in the buffer.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "baac_accidents_cyclistes",
+            "type": "integer",
+            "description": "Severe cyclist-crash count within 500 m over 5 years (ONISR BAAC).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "gtfs_heavy_stops_300m",
+            "type": "integer",
+            "description": "Heavy-transit stops within 300 m (national GTFS aggregator).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "gtfs_stops_within_300m_pct",
+            "type": "number",
+            "description": "Share of accessible heavy-transit stops in the buffer.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "code_commune",
+            "type": "string",
+            "description": "INSEE commune code.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "commune_name",
+            "type": "string",
+            "description": "INSEE commune label.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "revenu_median_uc",
+            "type": "number",
+            "description": "INSEE Filosofi median disposable income per consumption unit.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "gini_revenu",
+            "type": "number",
+            "description": "Local Gini index of income.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "revenu_d1",
+            "type": "number",
+            "description": "First-decile income (INSEE Filosofi).",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "ecart_interquar",
+            "type": "number",
+            "description": "Interquartile income spread (INSEE Filosofi).",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "part_menages_voit0",
+            "type": "number",
+            "description": "Share of car-less households (INSEE).",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "part_velo_travail",
+            "type": "number",
+            "description": "Share of commuting by bicycle (INSEE).",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "station_type",
+            "type": "string",
+            "description": "Audited station type: docked_bike, free_floating or carsharing.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "capacity_raw",
+            "type": "number",
+            "description": "Raw GBFS capacity preserved verbatim (NaN/placeholders kept).",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "capacity_audited",
+            "type": "number",
+            "description": "Post-audit capacity; NaN for non-dock types.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "flag_A1",
+            "type": "boolean",
+            "description": "Structural error A1: out-of-domain inclusion (carsharing under a bike schema).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "flag_A2",
+            "type": "boolean",
+            "description": "Structural error A2: placeholder capacity constant across a system.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "flag_A3",
+            "type": "boolean",
+            "description": "Structural error A3: structural over-capacity (free-floating anchor).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "flag_A4",
+            "type": "boolean",
+            "description": "Structural error A4: topology-aware geospatial outlier (HDBSCAN + spectral).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "flag_A5",
+            "type": "boolean",
+            "description": "Structural error A5: out-of-perimeter coverage (bbox > 50,000 km²).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "flag_A6",
+            "type": "boolean",
+            "description": "Semantic warning A6: zero-capacity dock.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "flag_A7",
+            "type": "boolean",
+            "description": "Semantic warning A7: null-capacity field.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "operator_name",
+            "type": "string",
+            "description": "Normalised operator label.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "audit_confidence",
+            "type": "string",
+            "description": "Per-row audit confidence: high, medium or low.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "dist_to_nearest_station_m",
+            "type": "number",
+            "description": "Intra-system distance to nearest station (metres).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "n_stations_within_500m",
+            "type": "integer",
+            "description": "Intra-system station count within 500 m.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "n_stations_within_1km",
+            "type": "integer",
+            "description": "Intra-system station count within 1 km.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "nearest_system_dist_m",
+            "type": "number",
+            "description": "Distance to the nearest station of a different system (metres).",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "catchment_density_per_km2",
+            "type": "number",
+            "description": "Stations per km² within a 1 km buffer.",
+            "constraints": {
+              "required": true
+            }
+          }
+        ],
+        "primaryKey": "uid"
+      }
+    }
+  ]
+}

@@ -1,4 +1,8 @@
-# GBFS Audit Catalogue -- bit-exact reproduction image.
+# GBFS Audit Catalogue -- reproduction image.
+#
+# Dependencies use compatible lower bounds (see requirements.txt); for a
+# byte-for-byte rebuild, pin them with `pip freeze > requirements.lock`
+# inside the built image and rebuild FROM that lock.
 #
 # Build:
 #   docker build -t gbfs-audit:1.0 .

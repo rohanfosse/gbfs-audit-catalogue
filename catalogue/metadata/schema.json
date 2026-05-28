@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cycling-data-lab/gbfs-audit-catalogue/blob/main/catalogue/metadata/schema.json",
+  "title": "GBFS Audit Catalogue — station record",
+  "description": "A certified, anomaly-flagged reference dataset of 46,307 bike-sharing stations across 123 French operators, with per-row audit verdicts (seven data-quality classes A1–A7) and contextual enrichment from INSEE, BAAC, BD TOPO, BD ALTI and the national GTFS aggregator.",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "description": "Audit Catalogue primary key (stable per certified station)."
+    },
+    "system_id": {
+      "type": "string",
+      "description": "Operator-system identifier."
+    },
+    "city": {
+      "type": "string",
+      "description": "Normalised city name."
+    },
+    "system_name": {
+      "type": "string",
+      "description": "Operator-system label as published in the feed."
+    },
+    "source": {
+      "type": "string",
+      "description": "Feed URL or canonical-catalogue source pointer."
+    },
+    "station_id": {
+      "type": "string",
+      "description": "GBFS native station identifier."
+    },
+    "station_name": {
+      "type": "string",
+      "description": "GBFS station name."
+    },
+    "lat": {
+      "type": "number",
+      "description": "Geofiltered WGS84 latitude (decimal degrees)."
+    },
+    "lon": {
+      "type": "number",
+      "description": "Geofiltered WGS84 longitude (decimal degrees)."
+    },
+    "capacity": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Raw declared dock capacity (may be a placeholder or null)."
+    },
+    "address": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "GBFS-declared street address, when present."
+    },
+    "region_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Administrative region identifier, when present."
+    },
+    "n_stations_system": {
+      "type": "number",
+      "description": "Total number of stations in the parent system."
+    },
+    "fetched_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of the audited feed snapshot."
+    },
+    "elevation_m": {
+      "type": "number",
+      "description": "Ground elevation in metres (IGN BD ALTI)."
+    },
+    "topography_roughness_index": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Local relief amplitude around the station."
+    },
+    "infra_cyclable_km": {
+      "type": "number",
+      "description": "Cycle-lane linear within a 300 m buffer (IGN BD TOPO), km."
+    },
+    "infra_cyclable_pct": {
+      "type": "number",
+      "description": "Share of dedicated cycle right-of-way in the buffer."
+    },
+    "baac_accidents_cyclistes": {
+      "type": "integer",
+      "description": "Severe cyclist-crash count within 500 m over 5 years (ONISR BAAC)."
+    },
+    "gtfs_heavy_stops_300m": {
+      "type": "integer",
+      "description": "Heavy-transit stops within 300 m (national GTFS aggregator)."
+    },
+    "gtfs_stops_within_300m_pct": {
+      "type": "number",
+      "description": "Share of accessible heavy-transit stops in the buffer."
+    },
+    "code_commune": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "INSEE commune code."
+    },
+    "commune_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "INSEE commune label."
+    },
+    "revenu_median_uc": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "INSEE Filosofi median disposable income per consumption unit."
+    },
+    "gini_revenu": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Local Gini index of income."
+    },
+    "revenu_d1": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "First-decile income (INSEE Filosofi)."
+    },
+    "ecart_interquar": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Interquartile income spread (INSEE Filosofi)."
+    },
+    "part_menages_voit0": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Share of car-less households (INSEE)."
+    },
+    "part_velo_travail": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Share of commuting by bicycle (INSEE)."
+    },
+    "station_type": {
+      "type": "string",
+      "description": "Audited station type: docked_bike, free_floating or carsharing."
+    },
+    "capacity_raw": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Raw GBFS capacity preserved verbatim (NaN/placeholders kept)."
+    },
+    "capacity_audited": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Post-audit capacity; NaN for non-dock types."
+    },
+    "flag_A1": {
+      "type": "boolean",
+      "description": "Structural error A1: out-of-domain inclusion (carsharing under a bike schema)."
+    },
+    "flag_A2": {
+      "type": "boolean",
+      "description": "Structural error A2: placeholder capacity constant across a system."
+    },
+    "flag_A3": {
+      "type": "boolean",
+      "description": "Structural error A3: structural over-capacity (free-floating anchor)."
+    },
+    "flag_A4": {
+      "type": "boolean",
+      "description": "Structural error A4: topology-aware geospatial outlier (HDBSCAN + spectral)."
+    },
+    "flag_A5": {
+      "type": "boolean",
+      "description": "Structural error A5: out-of-perimeter coverage (bbox > 50,000 km²)."
+    },
+    "flag_A6": {
+      "type": "boolean",
+      "description": "Semantic warning A6: zero-capacity dock."
+    },
+    "flag_A7": {
+      "type": "boolean",
+      "description": "Semantic warning A7: null-capacity field."
+    },
+    "operator_name": {
+      "type": "string",
+      "description": "Normalised operator label."
+    },
+    "audit_confidence": {
+      "type": "string",
+      "description": "Per-row audit confidence: high, medium or low."
+    },
+    "dist_to_nearest_station_m": {
+      "type": "number",
+      "description": "Intra-system distance to nearest station (metres)."
+    },
+    "n_stations_within_500m": {
+      "type": "integer",
+      "description": "Intra-system station count within 500 m."
+    },
+    "n_stations_within_1km": {
+      "type": "integer",
+      "description": "Intra-system station count within 1 km."
+    },
+    "nearest_system_dist_m": {
+      "type": "number",
+      "description": "Distance to the nearest station of a different system (metres)."
+    },
+    "catchment_density_per_km2": {
+      "type": "number",
+      "description": "Stations per km² within a 1 km buffer."
+    }
+  },
+  "required": [
+    "uid",
+    "system_id",
+    "city",
+    "system_name",
+    "source",
+    "station_id",
+    "station_name",
+    "lat",
+    "lon",
+    "n_stations_system",
+    "fetched_at",
+    "elevation_m",
+    "infra_cyclable_km",
+    "infra_cyclable_pct",
+    "baac_accidents_cyclistes",
+    "gtfs_heavy_stops_300m",
+    "gtfs_stops_within_300m_pct",
+    "station_type",
+    "flag_A1",
+    "flag_A2",
+    "flag_A3",
+    "flag_A4",
+    "flag_A5",
+    "flag_A6",
+    "flag_A7",
+    "operator_name",
+    "audit_confidence",
+    "dist_to_nearest_station_m",
+    "n_stations_within_500m",
+    "n_stations_within_1km",
+    "nearest_system_dist_m",
+    "catchment_density_per_km2"
+  ],
+  "additionalProperties": false
+}
