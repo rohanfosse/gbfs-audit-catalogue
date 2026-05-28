@@ -15,7 +15,7 @@ FROM python:3.11-slim
 
 LABEL org.opencontainers.image.title="GBFS Audit Catalogue"
 LABEL org.opencontainers.image.description="Reproducible audit of 1,509 GBFS bike-sharing feeds."
-LABEL org.opencontainers.image.source="https://github.com/rohanfosse/gbfs-audit-catalogue"
+LABEL org.opencontainers.image.source="https://github.com/cycling-data-lab/gbfs-audit-catalogue"
 LABEL org.opencontainers.image.licenses="MIT (code) / ODbL-1.0 (data)"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

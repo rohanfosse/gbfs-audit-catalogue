@@ -10,7 +10,7 @@ Usage:
     python -m experiments.annotation.sample_extractor \
         --catalogue catalogue/stations_gold_standard_final.parquet \
         --ablation results/xp2/xp2_ablation.parquet \
-        --output experiments/annotation/sample_200.csv
+        --output experiments/annotation/sample.csv
 """
 from __future__ import annotations
 

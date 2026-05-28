@@ -24,7 +24,7 @@ If you have Overleaf Premium or an institutional licence :
 
 1. Open your Overleaf project.
 2. **Menu → GitHub → Link to GitHub**.
-3. Authorise Overleaf to read `rohanfosse/gbfs-audit-catalogue`.
+3. Authorise Overleaf to read `cycling-data-lab/gbfs-audit-catalogue`.
 4. In the branch picker, select **`overleaf-paper`** (not `main`).
 5. Set **`manuscript.tex`** as the main document.
 
@@ -45,7 +45,7 @@ If you are on Overleaf's free plan :
    ```bash
    # Clone the overleaf-paper branch into a local working folder
    git clone -b overleaf-paper \
-       https://github.com/rohanfosse/gbfs-audit-catalogue.git overleaf-mirror
+       https://github.com/cycling-data-lab/gbfs-audit-catalogue.git overleaf-mirror
    cd overleaf-mirror
 
    # Add Overleaf as a second remote

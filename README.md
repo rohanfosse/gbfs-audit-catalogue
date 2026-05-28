@@ -5,10 +5,10 @@
 > produced it.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20125460.svg)](https://doi.org/10.5281/zenodo.20125460)
-[![tests](https://github.com/rohanfosse/gbfs-audit-catalogue/actions/workflows/tests.yml/badge.svg)](https://github.com/rohanfosse/gbfs-audit-catalogue/actions/workflows/tests.yml)
+[![tests](https://github.com/cycling-data-lab/gbfs-audit-catalogue/actions/workflows/tests.yml/badge.svg)](https://github.com/cycling-data-lab/gbfs-audit-catalogue/actions/workflows/tests.yml)
 [![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Datasets-yellow)](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Live%20demo-red)](https://gbfs-audit.streamlit.app)
-[![Docs](https://img.shields.io/badge/Docs-Project%20page-lightgrey)](https://rohanfosse.github.io/gbfs-audit-catalogue)
+[![Docs](https://img.shields.io/badge/Docs-Project%20page-lightgrey)](https://cycling-data-lab.github.io/gbfs-audit-catalogue)
 [![Data: ODbL](https://img.shields.io/badge/data-ODbL%20v1.0-blue)](LICENSE-DATA)
 [![Code: MIT](https://img.shields.io/badge/code-MIT-green)](LICENSE)
 
@@ -46,7 +46,7 @@ clean = gs[(gs.station_type == "docked_bike") & (gs.audit_confidence == "high")]
 
 The 46-column schema, the seven-class taxonomy and eight reproducible
 recipes (anomaly filtering, INSEE join, Bordeaux before/after, etc.) are
-documented on the [**project page**](https://rohanfosse.github.io/gbfs-audit-catalogue)
+documented on the [**project page**](https://cycling-data-lab.github.io/gbfs-audit-catalogue)
 and the [**dataset card**](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue).
 
 ## Running the experiments
@@ -75,6 +75,8 @@ experiments/
 ├── xp1_dynamic_audit/   Shannon-entropy zombie detector (collector + classifier)
 ├── xp2_spatial_topology/ HDBSCAN + spectral graph ablation vs. legacy centroid
 ├── xp3_looo_validation/ Leave-one-operator-out CV with bootstrap CI
+├── annotation/          Human ground-truth validation (stratified sample,
+│                        Streamlit annotator, inter-rater reliability)
 ├── e1_holdout/          Retrospective hold-out (12-month MobilityData diff)
 ├── e2_threshold_sensitivity/  σ_max sweep, A3 KDE threshold, global panel
 ├── e5_europe/           Cross-country panel (13 systems, 6 technology stacks)
@@ -84,21 +86,22 @@ catalogue/               Certified parquet + per-system audit summary
 paper/                   Manuscript LaTeX source + 10 figures
 notebooks/               8 reproducible recipes + reviewer demo
 app/                     Streamlit dashboard (gbfs-audit.streamlit.app)
-tests/                   26 tests, 85 % coverage, Python 3.10–3.14
+tests/                   36 tests, Python 3.10–3.12
 ```
 
 ## Learn more
 
 | Resource | Where |
 | --- | --- |
-| Project page (long-form) | [rohanfosse.github.io/gbfs-audit-catalogue](https://rohanfosse.github.io/gbfs-audit-catalogue) |
+| Project page (long-form) | [cycling-data-lab.github.io/gbfs-audit-catalogue](https://cycling-data-lab.github.io/gbfs-audit-catalogue) |
 | Dataset card + full schema | [huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue) |
 | Live dashboard | [gbfs-audit.streamlit.app](https://gbfs-audit.streamlit.app) |
 | Manuscript LaTeX source | [`paper/`](paper/) |
 | Reproducible recipes | [`notebooks/catalogue_recipes.ipynb`](notebooks/catalogue_recipes.ipynb) |
 | Experiment reproduction | [`notebooks/xp_reviewer_demo.ipynb`](notebooks/xp_reviewer_demo.ipynb) |
+| Human validation protocol | [`experiments/annotation/PROTOCOL.md`](experiments/annotation/PROTOCOL.md) |
 | Docker reproduction | `docker build -t gbfs-audit:1.0 . && docker run --rm gbfs-audit:1.0` |
-| Tests | `pytest` (26 tests, 85 % coverage, Python 3.10–3.14) |
+| Tests | `pytest` (36 tests, Python 3.10–3.12) |
 
 ## Citation
 
@@ -135,4 +138,4 @@ GTFS aggregator) are listed in `LICENSE-DATA`.
 **Gaël Pallares** — CESI LINEACT (EA 7527), Montpellier.
 
 Issues and contributions are welcome on the
-[issue tracker](https://github.com/rohanfosse/gbfs-audit-catalogue/issues).
+[issue tracker](https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues).

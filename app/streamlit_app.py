@@ -49,8 +49,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        "Get Help": "https://github.com/rohanfosse/gbfs-audit-catalogue/issues",
-        "Report a bug": "https://github.com/rohanfosse/gbfs-audit-catalogue/issues/new",
+        "Get Help": "https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues",
+        "Report a bug": "https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues/new",
         "About": (
             "GBFS Audit Catalogue v1.0  ·  "
             "Fossé & Pallares (2026), Computer Standards & Interfaces."
@@ -119,13 +119,13 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.markdown(
-        "[Paper source (manuscript.tex)](https://github.com/rohanfosse/gbfs-audit-catalogue/blob/main/paper/manuscript.tex)  \n"
+        "[Paper source (manuscript.tex)](https://github.com/cycling-data-lab/gbfs-audit-catalogue/blob/main/paper/manuscript.tex)  \n"
         "Manuscript under peer review at CSI 2026 (preprint forthcoming).\n\n"
         "[Zenodo DOI (dataset)](https://doi.org/10.5281/zenodo.20125460)  \n"
         "[Hugging Face Datasets](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue)  \n"
-        "[Source code](https://github.com/rohanfosse/gbfs-audit-catalogue)  \n"
-        "[Project page](https://rohanfosse.github.io/gbfs-audit-catalogue)  \n"
-        "[Notebook (8 recipes)](https://github.com/rohanfosse/gbfs-audit-catalogue/blob/main/notebooks/catalogue_recipes.ipynb)"
+        "[Source code](https://github.com/cycling-data-lab/gbfs-audit-catalogue)  \n"
+        "[Project page](https://cycling-data-lab.github.io/gbfs-audit-catalogue)  \n"
+        "[Notebook (8 recipes)](https://github.com/cycling-data-lab/gbfs-audit-catalogue/blob/main/notebooks/catalogue_recipes.ipynb)"
     )
 
     st.markdown(
@@ -1489,7 +1489,7 @@ st.markdown(
       <a href="https://opensource.org/licenses/MIT" target="_blank"
          style="color:#1A6FBF; text-decoration:none; font-weight:500;">MIT</a>
        ·
-      <a href="https://github.com/rohanfosse/gbfs-audit-catalogue/issues"
+      <a href="https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues"
          target="_blank"
          style="color:#1A6FBF; text-decoration:none; font-weight:500;">
         Issues and contributions

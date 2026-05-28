@@ -171,7 +171,7 @@ Strata with n ≤ 15 should be discussed as "indicative" rather than
 
 ## Output files
 
-- `experiments/annotation/sample_200.csv` — the stratified sample
+- `experiments/annotation/sample.csv` — the stratified sample (325 stations)
 - `experiments/annotation/annotations.db` — SQLite annotation store
 - `experiments/annotation/labels_<annotator>.csv` — legacy CSV export
 - `experiments/annotation/gold_labels.csv` — adjudicated consensus

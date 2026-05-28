@@ -13,7 +13,7 @@ authors:
   - family-names: Pallares
     given-names: Gaël
     affiliation: CESI LINEACT (EA 7527), Montpellier, France
-repository-code: "https://github.com/rohanfosse/gbfs-audit-catalogue"
+repository-code: "https://github.com/cycling-data-lab/gbfs-audit-catalogue"
 url: "https://gbfs-audit.streamlit.app"
 identifiers:
   - type: doi

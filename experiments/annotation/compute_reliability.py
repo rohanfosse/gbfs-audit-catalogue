@@ -312,7 +312,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--labels1", required=True)
     parser.add_argument("--labels2", required=True)
-    parser.add_argument("--sample", default=str(_LABELS_DIR / "sample_200.csv"))
+    parser.add_argument("--sample", default=str(_LABELS_DIR / "sample.csv"))
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 

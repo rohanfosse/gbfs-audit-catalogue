@@ -122,7 +122,7 @@ If you use the catalogue in your research, please cite both the paper and the Ze
 ## Issues, contributions, contact
 
 GitHub issues for bugs, schema requests or new audit classes:
-<https://github.com/rohanfosse/gbfs-audit-catalogue/issues>
+<https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues>
 
 **Rohan Fossé** (lead contact, `rfosse@cesi.fr`) — CESI École d'Ingénieurs, Montpellier, France.
 

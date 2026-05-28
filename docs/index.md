@@ -51,8 +51,8 @@ gs.groupby("operator_name").agg(
 | **Zenodo deposit (DOI)** | [10.5281/zenodo.20125460](https://doi.org/10.5281/zenodo.20125460) |
 | **Hugging Face Datasets** | [rohanfosse/gbfs-audit-catalogue](https://huggingface.co/datasets/rohanfosse/gbfs-audit-catalogue) |
 | **Interactive dashboard** | [gbfs-audit.streamlit.app](https://gbfs-audit.streamlit.app) |
-| **Source code & audit pipeline** | [github.com/rohanfosse/gbfs-audit-catalogue](https://github.com/rohanfosse/gbfs-audit-catalogue) |
-| **Companion notebook (8 recipes)** | [notebooks/catalogue_recipes.ipynb](https://github.com/rohanfosse/gbfs-audit-catalogue/blob/main/notebooks/catalogue_recipes.ipynb) |
+| **Source code & audit pipeline** | [github.com/cycling-data-lab/gbfs-audit-catalogue](https://github.com/cycling-data-lab/gbfs-audit-catalogue) |
+| **Companion notebook (8 recipes)** | [notebooks/catalogue_recipes.ipynb](https://github.com/cycling-data-lab/gbfs-audit-catalogue/blob/main/notebooks/catalogue_recipes.ipynb) |
 
 ---
 
@@ -124,4 +124,4 @@ The full machine-readable schema ships as a JSON Schema, a Frictionless Data Pac
 
 **Gaël Pallares**  ·  CESI LINEACT (EA 7527), Montpellier, France.
 
-Issues and contributions on [GitHub](https://github.com/rohanfosse/gbfs-audit-catalogue/issues).
+Issues and contributions on [GitHub](https://github.com/cycling-data-lab/gbfs-audit-catalogue/issues).
